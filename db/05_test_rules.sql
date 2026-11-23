@@ -329,13 +329,14 @@ declare
     v_student uuid := '44444444-4444-4444-4444-444444444444';
     v_count   integer;
 begin
-    -- Created as the superuser/owner first, so the draft genuinely exists and we
-    -- are testing visibility rather than insert permission.
+    -- Created as the owner first, so the draft genuinely exists and we are
+    -- testing visibility rather than insert permission.
     insert into logbooks (class_id, period_year, period_month)
     values ('77777777-7777-7777-7777-777777777777', 2021, 5)
     on conflict do nothing;
 
-    perform set_current_user_id(v_student);
+    perform set_config('request.jwt.claim.sub', v_student::text, true);
+    perform set_config('request.jwt.claim.role', 'authenticated', true);
     set local role authenticated;
 
     select count(*) into v_count from logbooks where period_year = 2021 and period_month = 5;
@@ -355,7 +356,8 @@ declare
     v_count integer;
 begin
     -- The unpaid student must not see the class at all.
-    perform set_current_user_id('55555555-5555-5555-5555-555555555555');
+    perform set_config('request.jwt.claim.sub', '55555555-5555-5555-5555-555555555555', true);
+    perform set_config('request.jwt.claim.role', 'authenticated', true);
     set local role authenticated;
 
     select count(*) into v_count from classes;
@@ -372,7 +374,8 @@ declare
     v_count integer;
 begin
     -- A tutor must not read student rates through the safe view.
-    perform set_current_user_id('22222222-2222-2222-2222-222222222222');
+    perform set_config('request.jwt.claim.sub', '22222222-2222-2222-2222-222222222222', true);
+    perform set_config('request.jwt.claim.role', 'authenticated', true);
     set local role authenticated;
 
     select count(*) into v_count from v_classes_safe where student_rate is not null;
@@ -389,7 +392,8 @@ declare
     v_count integer;
 begin
     -- The other tutor sees no earnings at all.
-    perform set_current_user_id('33333333-3333-3333-3333-333333333333');
+    perform set_config('request.jwt.claim.sub', '33333333-3333-3333-3333-333333333333', true);
+    perform set_config('request.jwt.claim.role', 'authenticated', true);
     set local role authenticated;
 
     select count(*) into v_count from earnings_ledger;

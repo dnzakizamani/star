@@ -19,7 +19,12 @@ declare
     v_lesson2 uuid;
     v_logbook uuid;
 begin
-    -- Clean slate (safe to re-run)
+    -- Clean slate (safe to re-run).
+    -- Triggers are suspended for the wipe: an approved logbook is immutable by
+    -- design, so deleting its entries would otherwise be rejected. This is a
+    -- seed script run by the owner, not application traffic.
+    set local session_replication_role = replica;
+
     delete from earnings_ledger;
     delete from logbook_entries;
     delete from logbooks;
@@ -29,8 +34,31 @@ begin
     delete from classes;
     delete from profiles;
 
+    set local session_replication_role = origin;
+
+    -- ---------------------------------------------------------------------
+    -- On Supabase, profiles.id has a foreign key to auth.users, so the auth
+    -- rows must exist first. Locally (plain PostgreSQL) auth.users is provided
+    -- by 99_local_auth_stub.sql, or absent entirely before the stub runs.
+    -- ---------------------------------------------------------------------
+    if exists (select 1 from pg_tables where schemaname = 'auth' and tablename = 'users') then
+        execute $sql$
+            insert into auth.users (id, email) values
+                ('11111111-1111-1111-1111-111111111111', 'admin@stargeneration.test'),
+                ('22222222-2222-2222-2222-222222222222', 'tutor1@stargeneration.test'),
+                ('33333333-3333-3333-3333-333333333333', 'tutor2@stargeneration.test'),
+                ('44444444-4444-4444-4444-444444444444', 'student1@stargeneration.test'),
+                ('55555555-5555-5555-5555-555555555555', 'student2@stargeneration.test'),
+                ('66666666-6666-6666-6666-666666666666', 'student3@stargeneration.test')
+            on conflict (id) do nothing
+        $sql$;
+    end if;
+
     -- ---------------------------------------------------------------------
     -- People: 1 admin, 2 tutors, 3 students
+    -- On Supabase the auth.users insert above already fired fn_handle_new_user,
+    -- which created these rows with the default 'student' role. Upsert so the
+    -- seed is idempotent and the intended roles win.
     -- ---------------------------------------------------------------------
     insert into profiles (id, email, full_name, role) values
         (v_admin,  'admin@stargeneration.test',  'Rani Admin',        'admin'),
@@ -38,7 +66,11 @@ begin
         (v_tutor2, 'tutor2@stargeneration.test', 'Sari Dewi',         'tutor'),
         (v_stu1,   'student1@stargeneration.test', 'Andi Pratama',    'student'),
         (v_stu2,   'student2@stargeneration.test', 'Bunga Lestari',   'student'),
-        (v_stu3,   'student3@stargeneration.test', 'Candra Wijaya',   'student');
+        (v_stu3,   'student3@stargeneration.test', 'Candra Wijaya',   'student')
+    on conflict (id) do update set
+        email     = excluded.email,
+        full_name = excluded.full_name,
+        role      = excluded.role;
 
     -- ---------------------------------------------------------------------
     -- One class, capacity 2, tutor 1
