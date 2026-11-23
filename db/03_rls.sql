@@ -115,8 +115,11 @@ alter table classes enable row level security;
 create policy classes_select_admin on classes
     for select using (auth_is_admin());
 
+-- Tutors see ONLY the classes they teach. The ownership check must stay: an
+-- earlier version of this policy also had `or auth_is_tutor()`, which let any
+-- tutor read every class row in the system.
 create policy classes_select_tutor on classes
-    for select using (auth_tutor_teaches(id) or auth_is_tutor());
+    for select using (auth_tutor_teaches(id));
 
 create policy classes_select_paid_student on classes
     for select using (auth_student_has_paid(id));

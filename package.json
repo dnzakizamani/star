@@ -1,0 +1,32 @@
+{
+  "name": "star-generation",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:setup": "bash db/deploy_supabase.sh"
+  },
+  "//overrides": "Next 15 memakai postcss versi lama yang punya advisory. Override ini memaksa versi yang sudah ditambal tanpa perlu naik ke Next 16 (yang mengganti konvensi middleware menjadi proxy dan membingungkan kalau mencari tutorial).",
+  "overrides": {
+    "postcss": "^8.5.23"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "next": "^15.5.29",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.23",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2"
+  }
+}

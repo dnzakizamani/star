@@ -130,6 +130,15 @@ begin
 
     if new.status = 'approved' then
         new.approved_at := now();
+        -- approved_by is required by the logbooks_approved_consistency CHECK
+        -- constraint. Without this line every approval fails with 23514.
+        --
+        -- coalesce, not a bare assignment: auth.uid() is NULL outside a JWT
+        -- context (psql, seed scripts, tests). A bare assignment would then
+        -- clobber the value the caller passed and break the check constraint.
+        -- In API traffic auth.uid() is always set, so it still wins over
+        -- anything the client claims.
+        new.approved_by := coalesce(auth.uid(), new.approved_by);
     end if;
 
     return new;
@@ -280,9 +289,16 @@ for each row execute function fn_logbook_entries_block_mutation();
 -- Idempotent by construction: ON CONFLICT (lesson_id) DO NOTHING plus the
 -- unique index means re-approving can never duplicate a payout.
 -- ===========================================================================
+-- SECURITY DEFINER is required, not optional: this trigger inserts into
+-- earnings_ledger on behalf of the admin who approved the logbook. With RLS
+-- enabled on earnings_ledger and no INSERT policy for admins, the insert is
+-- rejected (42501) and the approval fails. Running as the function owner makes
+-- the ledger writable only through this controlled path.
 create or replace function fn_logbooks_generate_earnings()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 begin
     if new.status = 'approved' and old.status is distinct from 'approved' then

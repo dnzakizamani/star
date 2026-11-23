@@ -1,0 +1,72 @@
+// Wrapper untuk form yang memanggil Server Action dan menampilkan hasilnya.
+//
+// Kenapa perlu komponen terpisah?
+// =========================
+// Server Action tidak bisa dipanggil langsung dari Server Component kalau kita
+// ingin menampilkan pesan error. Kita butuh useState, dan useState hanya ada di
+// Client Component. Komponen ini menyembunyikan kerumitan itu: halaman cukup
+// membungkus form dengan <FormAksi> dan mengisi action-nya.
+
+'use client';
+
+import { useState } from 'react';
+import { PesanError, PesanSukses } from './Pesan';
+
+type HasilAksi = { pesanError?: string; pesanSukses?: string } | undefined;
+
+export function FormAksi({
+  action,
+  children,
+  labelTombol,
+  varianTombol = 'utama',
+}: {
+  // Server Action yang menerima FormData dan mengembalikan pesan.
+  action: (formData: FormData) => Promise<HasilAksi>;
+  children: React.ReactNode;
+  labelTombol: string;
+  varianTombol?: 'utama' | 'sekunder' | 'bahaya';
+}) {
+  const [pesanError, setPesanError] = useState<string | null>(null);
+  const [pesanSukses, setPesanSukses] = useState<string | null>(null);
+  const [sedangProses, setSedangProses] = useState(false);
+
+  const kelasTombol: Record<string, string> = {
+    utama: 'bg-accent text-white border-accent hover:bg-teal-800',
+    sekunder: 'bg-surface text-ink border-line hover:bg-stone-50',
+    bahaya: 'bg-surface text-danger border-red-200 hover:bg-red-50',
+  };
+
+  async function tanganiSubmit(formData: FormData) {
+    setSedangProses(true);
+    setPesanError(null);
+    setPesanSukses(null);
+
+    const hasil = await action(formData);
+
+    if (hasil?.pesanError) {
+      setPesanError(hasil.pesanError);
+    }
+    if (hasil?.pesanSukses) {
+      setPesanSukses(hasil.pesanSukses);
+    }
+
+    setSedangProses(false);
+  }
+
+  return (
+    <form action={tanganiSubmit} className="space-y-3">
+      {children}
+
+      <PesanError pesan={pesanError} />
+      <PesanSukses pesan={pesanSukses} />
+
+      <button
+        type="submit"
+        disabled={sedangProses}
+        className={`inline-flex items-center justify-center rounded border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${kelasTombol[varianTombol]}`}
+      >
+        {sedangProses ? 'Memproses...' : labelTombol}
+      </button>
+    </form>
+  );
+}
