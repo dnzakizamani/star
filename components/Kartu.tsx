@@ -5,16 +5,22 @@ export function Kartu({
   judul,
   keterangan,
   aksi,
+  id,
   children,
 }: {
   judul?: string;
   keterangan?: string;
   // Tombol atau link di kanan judul.
   aksi?: React.ReactNode;
+  // Untuk anchor (#tambah-kelas) dari halaman lain.
+  id?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-line bg-surface">
+    <section
+      id={id}
+      className="scroll-mt-24 rounded-lg border border-line bg-surface"
+    >
       {(judul || aksi) && (
         <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
           <div>

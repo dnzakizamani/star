@@ -72,7 +72,7 @@ export default async function BerandaAdmin() {
         keterangan="Semua kelas yang terdaftar"
         aksi={
           <Link
-            href="/admin/kelas/baru"
+            href="/admin/kelas#tambah-kelas"
             className="text-sm font-medium text-accent hover:underline"
           >
             Tambah kelas

@@ -95,7 +95,7 @@ export default async function HalamanKelas() {
           )}
         </Kartu>
 
-        <Kartu judul="Tambah kelas">
+        <Kartu judul="Tambah kelas" id="tambah-kelas">
           {daftarKelas.length > 0 && tutor?.length === 0 ? (
             <p className="text-sm text-muted">
               Belum ada tutor. Tambahkan user dengan peran tutor dulu.

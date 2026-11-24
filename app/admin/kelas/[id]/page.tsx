@@ -12,7 +12,7 @@ import { KerangkaHalaman } from '@/components/KerangkaHalaman';
 import { Kartu } from '@/components/Kartu';
 import { BadgeStatus } from '@/components/BadgeStatus';
 import { FormAksi } from '@/components/FormAksi';
-import { Tombol, TombolLink } from '@/components/Tombol';
+import { TombolLink } from '@/components/Tombol';
 import { ubahRateKelas, arsipkanKelas, tambahSiswa, buatLes } from '../../aksi';
 import type { Kelas, Pendaftaran, Invoice, Les, Profil } from '@/lib/types';
 

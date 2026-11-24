@@ -10,7 +10,7 @@
 // server render halaman. Karena itu Supabase menyediakan pola dua client.
 // File ini yang versi server. Pasangannya ada di lib/supabase/browser.ts
 
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function buatClientServer() {
@@ -33,7 +33,7 @@ export async function buatClientServer() {
         // tetap mencoba menulis dan akan melempar error. Error itu aman
         // diabaikan karena middleware yang akan menyegarkan sesinya.
         setAll(
-          cookiesToSet: { name: string; value: string; options?: any }[]
+          cookiesToSet: { name: string; value: string; options: CookieOptions }[]
         ) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {

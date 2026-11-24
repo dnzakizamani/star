@@ -9,7 +9,7 @@
 import Link from 'next/link';
 import { wajibPeran } from '@/lib/session';
 import { buatClientServer } from '@/lib/supabase/server';
-import { formatTanggal, formatJam, formatJamPelajaran, namaBulan } from '@/lib/format';
+import { formatTanggal, formatJam, namaBulan } from '@/lib/format';
 import { KerangkaHalaman } from '@/components/KerangkaHalaman';
 import { Kartu } from '@/components/Kartu';
 import { BadgeStatus } from '@/components/BadgeStatus';

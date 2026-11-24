@@ -1,0 +1,28 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Dibaca dari .env di folder ini. Nilai ini masuk ke bundle browser,
+        # jadi hanya publishable key yang boleh di sini.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    image: star-generation-web:latest
+    container_name: star-generation
+    restart: unless-stopped
+    ports:
+      - "5027:5027"
+    healthcheck:
+      # Halaman login mengembalikan 200 tanpa perlu sesi, jadi cocok sebagai
+      # penanda container benar-benar siap menerima request.
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:5027/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

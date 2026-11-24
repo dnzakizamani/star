@@ -8,7 +8,7 @@
 //
 // Ini satu-satunya tempat di aplikasi yang boleh menulis cookie sesi.
 
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(
-          cookiesToSet: { name: string; value: string; options?: any }[]
+          cookiesToSet: { name: string; value: string; options: CookieOptions }[]
         ) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
@@ -40,6 +40,15 @@ export async function middleware(request: NextRequest) {
   // getUser() memicu refresh token kalau sudah kedaluwarsa.
   // Jangan diganti getSession(): itu hanya membaca cookie tanpa memvalidasi.
   await supabase.auth.getUser();
+
+  // Header keamanan. Dipasang di sini karena middleware jalan untuk semua
+  // route, jadi tidak perlu diulang di setiap halaman.
+  //
+  // X-Frame-Options mencegah halaman ini di-embed di iframe situs lain
+  // (clickjacking). nosniff mencegah browser menebak tipe file.
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   return response;
 }
