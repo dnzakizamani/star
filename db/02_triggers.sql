@@ -59,9 +59,15 @@ for each row execute function fn_enrollments_check_capacity();
 -- 2. Invoice auto-creation
 -- Amount is derived from the locked rate, never passed in by the client.
 -- ===========================================================================
+-- SECURITY DEFINER wajib: trigger ini menyisipkan invoice turunan saat admin
+-- mendaftarkan siswa lewat API. Tanpa definer, insert invoice berjalan dengan
+-- hak admin yang tidak punya policy INSERT di invoices (siswa penerima tagihan
+-- memang tidak boleh membuat invoice), dan enrollment gagal 403.
 create or replace function fn_enrollments_create_invoice()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 declare
     v_number text;
