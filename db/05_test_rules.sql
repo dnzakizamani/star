@@ -298,10 +298,13 @@ end $$;
 -- ===========================================================================
 -- Rule: class economics
 -- Revenue 1200000 (one paid package), tutor cost 180000, margin 1020000.
+-- The view is security_invoker, so the caller's identity decides the money
+-- columns. postgres has no profile row, so this block borrows the admin claim.
 -- ===========================================================================
 do $$
 declare r record;
 begin
+    perform set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', true);
     select * into r from v_class_finance limit 1;
     perform test_assert('finance: revenue_paid = 1200000', r.revenue_paid = 1200000);
     perform test_assert('finance: tutor_cost = 180000', r.tutor_cost_approved = 180000);
@@ -311,10 +314,13 @@ end $$;
 
 -- ===========================================================================
 -- Rule: logbook preview matches the ledger after approval
+-- View is security_invoker: borrow the admin claim so the payout columns
+-- resolve (postgres has no profile row).
 -- ===========================================================================
 do $$
 declare r record;
 begin
+    perform set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', true);
     select * into r from v_logbook_summary where status = 'approved' limit 1;
     perform test_assert('preview: projected payout equals ledgered payout',
         r.projected_payout = r.ledgered_payout);

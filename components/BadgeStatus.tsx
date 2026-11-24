@@ -41,6 +41,8 @@ function terjemahkanStatus(status: string): { teks: string; nada: NadaWarna } {
       return { teks: 'Dibatalkan', nada: 'danger' };
 
     // pendaftaran & kelas
+    case 'pending':
+      return { teks: 'Menunggu bayar', nada: 'warn' };
     case 'active':
       return { teks: 'Aktif', nada: 'ok' };
     case 'archived':

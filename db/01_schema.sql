@@ -51,16 +51,18 @@ create table enrollments (
     package_hours     numeric(6, 2) not null check (package_hours > 0),
     rate_at_purchase  numeric(12, 2) not null check (rate_at_purchase > 0),
     status            text not null default 'active'
-                      check (status in ('active', 'completed', 'dropped')),
+                      check (status in ('pending', 'active', 'completed', 'dropped')),
     created_at        timestamptz not null default now()
 );
 
+comment on column enrollments.status is
+    'pending = student self-enrolled and has not paid. Flips to active when the invoice is paid.';
 comment on column enrollments.rate_at_purchase is
     'Student rate locked at purchase time. Later class rate changes never rewrite this.';
 
-create unique index enrollments_one_active_per_student
+create unique index enrollments_one_per_student
     on enrollments (class_id, student_id)
-    where status = 'active';
+    where status in ('pending', 'active');
 
 create index enrollments_class_idx on enrollments (class_id);
 create index enrollments_student_idx on enrollments (student_id);
@@ -200,12 +202,17 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
+-- ===========================================================================
 -- View: remaining package hours per enrollment
 -- Hours are consumed by completed lessons that made it into a logbook, so an
 -- unlogged lesson never silently eats a student's package. Only paid enrollments
 -- count at all: an unpaid student never had access, so nothing is consumed.
+-- security_invoker: RLS pemanggil berlaku, jadi siswa tidak bisa membaca
+-- balance enrollment orang lain lewat view ini.
 -- ---------------------------------------------------------------------------
-create view v_enrollment_balance as
+drop view if exists v_enrollment_balance, v_class_finance, v_logbook_summary;
+create view v_enrollment_balance
+with (security_invoker = true) as
 select
     e.id                                             as enrollment_id,
     e.class_id,
@@ -235,8 +242,11 @@ left join (
 -- ---------------------------------------------------------------------------
 -- View: class economics
 -- Revenue counts paid invoices only. Tutor cost counts approved ledger rows only.
+-- security_invoker + filter kolom: siswa/tutor tidak boleh membaca margin
+-- bisnis lewat view ini; angka uang hanya untuk admin.
 -- ---------------------------------------------------------------------------
-create view v_class_finance as
+create view v_class_finance
+with (security_invoker = true) as
 select
     c.id                                              as class_id,
     c.name,
@@ -245,9 +255,11 @@ select
     c.tutor_rate,
     (select count(*) from enrollments e
       where e.class_id = c.id and e.status = 'active') as active_students,
-    coalesce(rev.amount, 0)                           as revenue_paid,
-    coalesce(cost.amount, 0)                          as tutor_cost_approved,
-    coalesce(rev.amount, 0) - coalesce(cost.amount, 0) as margin
+    case when auth_is_admin() then coalesce(rev.amount, 0) end as revenue_paid,
+    case when auth_is_admin() then coalesce(cost.amount, 0) end as tutor_cost_approved,
+    case when auth_is_admin() then
+        coalesce(rev.amount, 0) - coalesce(cost.amount, 0)
+    end as margin
 from classes c
 left join (
     select e.class_id, sum(i.amount) as amount
@@ -265,8 +277,11 @@ left join (
 
 -- ---------------------------------------------------------------------------
 -- View: logbook with entry count and projected payout (preview before approve)
+-- security_invoker: tutor hanya melihat logbook kelasnya (RLS logbooks), siswa
+-- hanya yang approved + lunas. Angka payout difilter peran via helper.
 -- ---------------------------------------------------------------------------
-create view v_logbook_summary as
+create view v_logbook_summary
+with (security_invoker = true) as
 select
     lb.id                        as logbook_id,
     lb.class_id,
@@ -278,8 +293,9 @@ select
     c.tutor_rate,
     count(le.id)                 as entry_count,
     coalesce(sum(fn_lesson_hours(l.starts_at, l.ends_at)), 0) as total_hours,
-    coalesce(sum(round(fn_lesson_hours(l.starts_at, l.ends_at) * c.tutor_rate, 2)), 0)
-                                 as projected_payout,
+    case when auth_is_admin() or auth_tutor_teaches(lb.class_id) then
+        coalesce(sum(round(fn_lesson_hours(l.starts_at, l.ends_at) * c.tutor_rate, 2)), 0)
+    end as projected_payout,
     coalesce((
         select sum(el.amount) from earnings_ledger el where el.logbook_id = lb.id
     ), 0)                        as ledgered_payout

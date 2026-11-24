@@ -142,6 +142,34 @@ select
         as student_rate
 from classes c;
 
+-- ---------------------------------------------------------------------------
+-- Katalog pendaftaran mandiri untuk siswa.
+--
+-- SECURITY DEFINER di sini disengaja dan aman: siswa yang belum lunas memang
+-- tidak punya hak SELECT ke tabel classes (itu requirement RLS), tapi katalog
+-- nama/harga/kapasitas adalah informasi publik toko. Yang diekspos hanya
+-- kolom katalog; baris kelas, jadwal, dan logbook tetap terkunci RLS sampai
+-- invoice lunas. seats_taken menghitung pending + active karena pendaftaran
+-- yang menunggu bayar tetap mengunci kursi.
+-- ---------------------------------------------------------------------------
+create or replace view v_classes_public
+with (security_invoker = false) as
+select
+    c.id,
+    c.name,
+    p.full_name     as tutor_name,
+    c.student_rate,
+    c.capacity,
+    (select count(*) from enrollments e
+      where e.class_id = c.id and e.status in ('pending', 'active')) as seats_taken,
+    (c.status = 'active'
+     and (select count(*) from enrollments e
+          where e.class_id = c.id and e.status in ('pending', 'active')) < c.capacity)
+                    as is_open
+from classes c
+join profiles p on p.id = c.tutor_id
+where c.status = 'active';
+
 -- ===========================================================================
 -- enrollments
 -- ===========================================================================
@@ -162,8 +190,33 @@ create policy enrollments_select_tutor on enrollments
         )
     );
 
+-- Rate dan status kelas dibaca lewat SECURITY DEFINER: siswa belum lunas
+-- tidak bisa membaca classes sendiri (RLS), jadi policy INSERT ini memanggil
+-- helper yang punya akses. Rate yang diterima client tetap diverifikasi
+-- terhadap harga kelas yang sebenarnya.
+create or replace function auth_class_info(p_class_id uuid)
+returns table (student_rate numeric, status text)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+    select c.student_rate, c.status from classes c where c.id = p_class_id;
+$$;
+
 create policy enrollments_insert_own on enrollments
-    for insert with check (student_id = auth.uid() or auth_is_admin());
+    for insert with check (
+        -- Siswa hanya boleh mendaftarkan dirinya sendiri, dan hanya sebagai
+        -- pending. Status active langsung = akses gratis tanpa bayar.
+        (
+            student_id = auth.uid()
+            and auth_is_student()
+            and status = 'pending'
+            and rate_at_purchase = (select student_rate from auth_class_info(class_id))
+            and (select status from auth_class_info(class_id)) = 'active'
+        )
+        or auth_is_admin()
+    );
 
 create policy enrollments_write_admin on enrollments
     for update using (auth_is_admin()) with check (auth_is_admin());
@@ -314,5 +367,5 @@ grant usage on schema public to authenticated, anon;
 grant select, insert, update, delete on all tables in schema public to authenticated;
 grant select on all tables in schema public to anon;
 grant usage, select on all sequences in schema public to authenticated;
-grant select on v_classes_safe, v_enrollment_balance, v_class_finance, v_logbook_summary
-    to authenticated;
+grant select on v_classes_safe, v_classes_public, v_enrollment_balance,
+    v_class_finance, v_logbook_summary to authenticated;

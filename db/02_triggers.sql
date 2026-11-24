@@ -8,9 +8,15 @@
 -- The class row is locked before counting, otherwise two concurrent enrollments
 -- could both read 1 free slot and both succeed.
 -- ===========================================================================
+-- SECURITY DEFINER wajib: trigger berjalan dengan hak pemanggil, dan siswa
+-- yang belum membayar justru TIDAK punya policy SELECT di classes. Tanpa
+-- definer, select di bawah selalu kosong untuk mereka dan insert pending
+-- ditolak dengan "Class does not exist" padahal kelasnya ada.
 create or replace function fn_enrollments_check_capacity()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 declare
     v_capacity integer;
@@ -36,10 +42,13 @@ begin
             using errcode = 'check_violation';
     end if;
 
+    -- Kursi terpakai = pending + active. Pendaftaran yang menunggu pembayaran
+    -- tetap mengunci kursi, kalau tidak dua siswa bisa memperebutkan slot yang
+    -- sama dan keduanya lolos.
     select count(*) into v_active
     from enrollments
     where class_id = new.class_id
-      and status = 'active'
+      and status in ('pending', 'active')
       and id is distinct from new.id;
 
     if v_active >= v_capacity then
@@ -54,6 +63,63 @@ $$;
 create trigger trg_enrollments_check_capacity
 before insert or update of status, class_id on enrollments
 for each row execute function fn_enrollments_check_capacity();
+
+-- ===========================================================================
+-- 1b. Student-created enrollments are pending until the admin confirms payment
+-- The enrollment row is the source of truth: active only after its invoice is
+-- paid. Admin-created enrollments keep the old behaviour (active at once).
+-- ===========================================================================
+create or replace function fn_enrollments_default_pending_for_students()
+returns trigger
+language plpgsql
+as $$
+begin
+    -- auth.uid() null = sesi server (seed, psql, migrasi): tidak disentuh.
+    -- Siswa lewat API: wajib pending.
+    if new.status = 'active' and auth.uid() is not null
+       and auth_is_student() and new.student_id = auth.uid() then
+        raise exception
+            'Student enrollment must start as pending until the invoice is paid'
+            using errcode = 'check_violation';
+    end if;
+
+    return new;
+end;
+$$;
+
+create trigger trg_enrollments_student_pending
+before insert on enrollments
+for each row execute function fn_enrollments_default_pending_for_students();
+
+-- ===========================================================================
+-- 1c. Paying the invoice activates the pending enrollment (admin = approver)
+-- ===========================================================================
+create or replace function fn_invoices_activate_enrollment()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if new.status = 'paid' and old.status is distinct from 'paid' then
+        update enrollments
+           set status = 'active'
+         where id = new.enrollment_id
+           and status = 'pending';
+
+        if not found then
+            -- Sudah active (top-up) atau void: tidak ada yang perlu diaktifkan.
+            -- Bukan error, supaya alur tandai-lunas tetap mulus.
+            raise notice 'No pending enrollment for invoice %, nothing to activate', new.id;
+        end if;
+    end if;
+    return new;
+end;
+$$;
+
+create trigger trg_invoices_activate_enrollment
+after update of status on invoices
+for each row execute function fn_invoices_activate_enrollment();
 
 -- ===========================================================================
 -- 2. Invoice auto-creation

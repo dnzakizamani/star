@@ -36,7 +36,8 @@ export type Pendaftaran = {
   student_id: string;
   package_hours: number;
   rate_at_purchase: number;
-  status: 'active' | 'completed' | 'dropped';
+  // pending = siswa mendaftar sendiri dan belum dibayar.
+  status: 'pending' | 'active' | 'completed' | 'dropped';
   created_at: string;
 };
 
@@ -89,7 +90,7 @@ export type SaldoPendaftaran = {
   enrollment_id: string;
   class_id: string;
   student_id: string;
-  enrollment_status: 'active' | 'completed' | 'dropped';
+  enrollment_status: 'pending' | 'active' | 'completed' | 'dropped';
   package_hours: number;
   rate_at_purchase: number;
   hours_used: number;

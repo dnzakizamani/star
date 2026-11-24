@@ -31,8 +31,8 @@ export default async function HalamanBilling() {
   // Siswa dengan sisa jam menipis (tapi masih aktif).
   const { data: saldo } = await supabase
     .from('v_enrollment_balance')
-    .select('enrollment_id, student_id, class_id, package_hours, hours_remaining, status')
-    .eq('status', 'active')
+    .select('enrollment_id, student_id, class_id, package_hours, hours_remaining, enrollment_status')
+    .eq('enrollment_status', 'active')
     .lt('hours_remaining', JAM_MENIPIS)
     .order('hours_remaining');
 
