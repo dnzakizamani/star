@@ -6,12 +6,15 @@ import Link from 'next/link';
 type Varian = 'utama' | 'sekunder' | 'bahaya';
 
 const KELAS_PER_VARIAN: Record<Varian, string> = {
+  // Tombol utama memakai navy (bukan gold): teks putih di atas gold gagal
+  // kontras. Gold dipakai sebagai aksen (border aktif, highlight), bukan
+  // sebagai warna tombol dengan teks di atasnya.
   utama:
-    'bg-accent text-white border-accent hover:bg-teal-800 disabled:bg-stone-300 disabled:border-stone-300',
+    'bg-navy text-white border-navy hover:bg-navy-soft disabled:bg-cloud disabled:border-cloud',
   sekunder:
-    'bg-surface text-ink border-line hover:bg-stone-50 disabled:text-stone-400',
+    'bg-surface text-navy border-cloud hover:bg-cloud/30 disabled:text-cloud-strong',
   bahaya:
-    'bg-surface text-danger border-red-200 hover:bg-red-50 disabled:text-stone-400',
+    'bg-surface text-danger border-danger/40 hover:bg-danger/10 disabled:text-cloud-strong',
 };
 
 const KELAS_DASAR =

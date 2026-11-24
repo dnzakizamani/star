@@ -44,17 +44,17 @@ export default async function HalamanKelas() {
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Kelas</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Kelas</h1>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <Kartu judul="Daftar kelas" keterangan={`${daftarKelas.length} kelas`}>
           {daftarKelas.length === 0 ? (
-            <p className="text-sm text-muted">Belum ada kelas.</p>
+            <p className="text-sm text-cloud-strong">Belum ada kelas.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+                  <tr className="border-b border-cloud text-left text-xs uppercase tracking-wide text-cloud-strong">
                     <th className="pb-2 pr-4 font-medium">Nama</th>
                     <th className="pb-2 pr-4 font-medium">Tutor</th>
                     <th className="pb-2 pr-4 font-medium">Siswa</th>
@@ -69,22 +69,22 @@ export default async function HalamanKelas() {
                     ).length;
 
                     return (
-                      <tr key={k.id} className="border-b border-line last:border-0">
+                      <tr key={k.id} className="border-b border-cloud last:border-0">
                         <td className="py-2 pr-4">
                           <Link
                             href={`/admin/kelas/${k.id}`}
-                            className="font-medium text-ink hover:text-accent hover:underline"
+                            className="font-medium text-navy hover:text-gold hover:underline"
                           >
                             {k.name}
                           </Link>
                         </td>
-                        <td className="py-2 pr-4 text-muted">
+                        <td className="py-2 pr-4 text-cloud-strong">
                           {k.tutor?.full_name ?? '-'}
                         </td>
-                        <td className="py-2 pr-4 text-muted">
+                        <td className="py-2 pr-4 text-cloud-strong">
                           {aktif}/{k.capacity}
                         </td>
-                        <td className="py-2 pr-4 text-muted">
+                        <td className="py-2 pr-4 text-cloud-strong">
                           {formatRupiah(k.student_rate)}
                         </td>
                         <td className="py-2">
@@ -101,7 +101,7 @@ export default async function HalamanKelas() {
 
         <Kartu judul="Tambah kelas" id="tambah-kelas">
           {daftarKelas.length > 0 && tutor?.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-cloud-strong">
               Belum ada tutor. Tambahkan user dengan peran tutor dulu.
             </p>
           ) : (
@@ -109,14 +109,14 @@ export default async function HalamanKelas() {
               <Isian label="Nama kelas" name="nama" placeholder="Matematika SMA - Grup B" />
 
               <div>
-                <label htmlFor="tutor_id" className="mb-1 block text-sm font-medium text-ink">
+                <label htmlFor="tutor_id" className="mb-1 block text-sm font-medium text-navy">
                   Tutor
                 </label>
                 <select
                   id="tutor_id"
                   name="tutor_id"
                   required
-                  className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                  className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                 >
                   <option value="">Pilih tutor</option>
                   {(tutor ?? []).map((t) => (
@@ -165,7 +165,7 @@ function Isian({
 }) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-ink">
+      <label htmlFor={name} className="mb-1 block text-sm font-medium text-navy">
         {label}
       </label>
       <input
@@ -175,7 +175,7 @@ function Isian({
         defaultValue={defaultValue}
         placeholder={placeholder}
         required
-        className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+        className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
       />
     </div>
   );

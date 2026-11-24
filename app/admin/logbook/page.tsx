@@ -51,7 +51,7 @@ export default async function HalamanLogbookAdmin({
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Logbook</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Logbook</h1>
 
       <div className="mb-4 flex gap-1">
         <FilterLink href="/admin/logbook" aktif={!status} label="Semua" />
@@ -69,7 +69,7 @@ export default async function HalamanLogbookAdmin({
 
       {daftarLogbook.length === 0 ? (
         <Kartu>
-          <p className="text-sm text-muted">Tidak ada logbook pada filter ini.</p>
+          <p className="text-sm text-cloud-strong">Tidak ada logbook pada filter ini.</p>
         </Kartu>
       ) : (
         <div className="grid gap-4">
@@ -80,13 +80,13 @@ export default async function HalamanLogbookAdmin({
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/admin/kelas/${lb.class_id}/logbook`}
-                      className="font-medium text-ink hover:text-accent hover:underline"
+                      className="font-medium text-navy hover:text-gold hover:underline"
                     >
                       {lb.class_name}
                     </Link>
                     <BadgeStatus status={lb.status} />
                   </div>
-                  <p className="mt-1 text-xs text-muted">
+                  <p className="mt-1 text-xs text-cloud-strong">
                     {namaBulan(lb.period_month)} {lb.period_year}
                     {' · '}
                     {lb.entry_count} entri
@@ -96,27 +96,27 @@ export default async function HalamanLogbookAdmin({
                 </div>
 
                 <div className="text-right">
-                  <p className="text-xs text-muted">Pendapatan tutor</p>
-                  <p className="text-sm font-semibold text-ink">
+                  <p className="text-xs text-cloud-strong">Pendapatan tutor</p>
+                  <p className="text-sm font-semibold text-navy">
                     {formatRupiah(lb.projected_payout)}
                   </p>
                   {lb.status === 'approved' && (
-                    <p className="mt-0.5 text-xs text-ok">Sudah tercatat</p>
+                    <p className="mt-0.5 text-xs text-success">Sudah tercatat</p>
                   )}
                 </div>
               </div>
 
               {catatanPerId.get(lb.logbook_id) && (
-                <p className="mt-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <p className="mt-3 rounded border border-gold/50 bg-gold-soft px-3 py-2 text-sm text-[#8A6D00]">
                   Catatan untuk tutor: {catatanPerId.get(lb.logbook_id)}
                 </p>
               )}
 
               {lb.status === 'submitted' && (
-                <div className="mt-4 grid gap-4 border-t border-line pt-4 sm:grid-cols-2">
+                <div className="mt-4 grid gap-4 border-t border-cloud pt-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-2 text-sm font-medium text-ink">Setujui</p>
-                    <p className="mb-2 text-xs text-muted">
+                    <p className="mb-2 text-sm font-medium text-navy">Setujui</p>
+                    <p className="mb-2 text-xs text-cloud-strong">
                       Pendapatan tutor akan tercatat otomatis dan logbook menjadi
                       tidak bisa diubah.
                     </p>
@@ -126,7 +126,7 @@ export default async function HalamanLogbookAdmin({
                   </div>
 
                   <div>
-                    <p className="mb-2 text-sm font-medium text-ink">
+                    <p className="mb-2 text-sm font-medium text-navy">
                       Kembalikan untuk perbaikan
                     </p>
                     <FormAksi
@@ -138,7 +138,7 @@ export default async function HalamanLogbookAdmin({
                       <div>
                         <label
                           htmlFor={`catatan-${lb.logbook_id}`}
-                          className="mb-1 block text-sm font-medium text-ink"
+                          className="mb-1 block text-sm font-medium text-navy"
                         >
                           Catatan untuk tutor
                         </label>
@@ -148,7 +148,7 @@ export default async function HalamanLogbookAdmin({
                           rows={2}
                           required
                           placeholder="Contoh: observasi les kedua terlalu singkat."
-                          className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                          className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                         />
                       </div>
                     </FormAksi>
@@ -177,8 +177,8 @@ function FilterLink({
       href={href}
       className={`rounded border px-3 py-1 text-sm ${
         aktif
-          ? 'border-accent bg-accent-soft text-accent'
-          : 'border-line bg-surface text-muted hover:text-ink'
+          ? 'border-gold bg-gold-soft text-gold'
+          : 'border-cloud bg-surface text-cloud-strong hover:text-navy'
       }`}
     >
       {label}

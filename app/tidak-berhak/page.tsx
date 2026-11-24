@@ -17,14 +17,14 @@ export default async function HalamanTidakBerhak() {
   return (
     <div className="flex min-h-screen items-center justify-center px-5">
       <div className="max-w-sm text-center">
-        <h1 className="text-lg font-semibold text-ink">Halaman tidak tersedia</h1>
-        <p className="mt-2 text-sm text-muted">
+        <h1 className="text-lg font-semibold text-navy">Halaman tidak tersedia</h1>
+        <p className="mt-2 text-sm text-cloud-strong">
           Akun Anda masuk sebagai <strong>{profil.role}</strong>, jadi halaman ini
           tidak bisa dibuka.
         </p>
         <Link
           href={berandaUntuk(profil.role)}
-          className="mt-4 inline-block rounded border border-line bg-surface px-3 py-1.5 text-sm text-ink hover:bg-stone-50"
+          className="mt-4 inline-block rounded border border-cloud bg-surface px-3 py-1.5 text-sm text-navy hover:bg-cloud/30"
         >
           Kembali ke beranda
         </Link>

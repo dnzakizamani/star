@@ -11,7 +11,7 @@ export function PesanError({ pesan }: { pesan?: string | null }) {
   return (
     <div
       role="alert"
-      className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+      className="rounded border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger"
     >
       {pesan}
     </div>
@@ -26,7 +26,7 @@ export function PesanSukses({ pesan }: { pesan?: string | null }) {
   return (
     <div
       role="status"
-      className="rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700"
+      className="rounded border border-success/40 bg-success/10 px-3 py-2 text-sm text-[#078A36]"
     >
       {pesan}
     </div>

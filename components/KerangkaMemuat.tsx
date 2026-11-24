@@ -13,17 +13,17 @@ export function KerangkaMemuat({ peran }: { peran: 'admin' | 'tutor' | 'student'
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line bg-surface">
+      <header className="border-b border-cloud bg-surface">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold tracking-tight text-ink">
+            <span className="text-sm font-semibold tracking-tight text-navy">
               Star Generation
             </span>
-            <span className="h-4 w-12 animate-pulse rounded bg-stone-200" />
+            <span className="h-4 w-12 animate-pulse rounded bg-cloud" />
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="h-4 w-24 animate-pulse rounded bg-stone-200" />
+            <span className="h-4 w-24 animate-pulse rounded bg-cloud" />
           </div>
         </div>
 
@@ -32,7 +32,7 @@ export function KerangkaMemuat({ peran }: { peran: 'admin' | 'tutor' | 'student'
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap border-b-2 border-transparent px-2 py-2.5 text-sm text-muted hover:border-line hover:text-ink"
+              className="whitespace-nowrap border-b-2 border-transparent px-2 py-2.5 text-sm text-cloud-strong hover:border-cloud hover:text-navy"
             >
               {item.label}
             </Link>
@@ -41,16 +41,16 @@ export function KerangkaMemuat({ peran }: { peran: 'admin' | 'tutor' | 'student'
       </header>
 
       <main className="mx-auto max-w-5xl px-5 py-6">
-        <div className="mb-5 h-5 w-40 animate-pulse rounded bg-stone-200" />
+        <div className="mb-5 h-5 w-40 animate-pulse rounded bg-cloud" />
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-20 animate-pulse rounded-lg border border-line bg-surface"
+              className="h-20 animate-pulse rounded-lg border border-cloud bg-surface"
             />
           ))}
         </div>
-        <div className="h-64 animate-pulse rounded-lg border border-line bg-surface" />
+        <div className="h-64 animate-pulse rounded-lg border border-cloud bg-surface" />
       </main>
     </div>
   );

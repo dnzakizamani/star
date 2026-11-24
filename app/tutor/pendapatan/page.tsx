@@ -56,24 +56,35 @@ export default async function HalamanPendapatan() {
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Pendapatan</h1>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold text-navy">Pendapatan</h1>
+
+        {daftarPendapatan.length > 0 && (
+          <a
+            href="/tutor/pendapatan/unduh"
+            className="rounded border border-cloud bg-surface px-3 py-1.5 text-sm font-medium text-navy hover:bg-cloud/30"
+          >
+            Unduh CSV
+          </a>
+        )}
+      </div>
 
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-line bg-surface px-5 py-4">
-          <p className="text-xs uppercase tracking-wide text-muted">Total pendapatan</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">
+        <div className="rounded-lg border border-cloud bg-surface px-5 py-4">
+          <p className="text-xs uppercase tracking-wide text-cloud-strong">Total pendapatan</p>
+          <p className="mt-1 text-2xl font-semibold text-navy">
             {formatRupiah(totalPendapatan)}
           </p>
         </div>
-        <div className="rounded-lg border border-line bg-surface px-5 py-4">
-          <p className="text-xs uppercase tracking-wide text-muted">Total jam mengajar</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">
+        <div className="rounded-lg border border-cloud bg-surface px-5 py-4">
+          <p className="text-xs uppercase tracking-wide text-cloud-strong">Total jam mengajar</p>
+          <p className="mt-1 text-2xl font-semibold text-navy">
             {formatJamPelajaran(totalJam)}
           </p>
         </div>
-        <div className="rounded-lg border border-line bg-surface px-5 py-4">
-          <p className="text-xs uppercase tracking-wide text-muted">Les tercatat</p>
-          <p className="mt-1 text-2xl font-semibold text-ink">
+        <div className="rounded-lg border border-cloud bg-surface px-5 py-4">
+          <p className="text-xs uppercase tracking-wide text-cloud-strong">Les tercatat</p>
+          <p className="mt-1 text-2xl font-semibold text-navy">
             {daftarPendapatan.length}
           </p>
         </div>
@@ -82,25 +93,25 @@ export default async function HalamanPendapatan() {
       <div className="grid gap-5">
         <Kartu judul="Ringkasan per bulan">
           {perBulan.size === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-cloud-strong">
               Belum ada pendapatan. Angka muncul setelah admin menyetujui logbook.
             </p>
           ) : (
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-cloud">
               {Array.from(perBulan.entries()).map(([kunci, nilai]) => {
                 const [tahun, bulan] = kunci.split('-').map(Number);
 
                 return (
                   <li key={kunci} className="flex items-center justify-between py-2.5">
                     <div>
-                      <p className="text-sm text-ink">
+                      <p className="text-sm text-navy">
                         {namaBulan(bulan)} {tahun}
                       </p>
-                      <p className="text-xs text-muted">
+                      <p className="text-xs text-cloud-strong">
                         {formatJamPelajaran(nilai.jam)}
                       </p>
                     </div>
-                    <p className="text-sm font-medium text-ink">
+                    <p className="text-sm font-medium text-navy">
                       {formatRupiah(nilai.nominal)}
                     </p>
                   </li>
@@ -112,12 +123,12 @@ export default async function HalamanPendapatan() {
 
         <Kartu judul="Rincian per les">
           {daftarPendapatan.length === 0 ? (
-            <p className="text-sm text-muted">Belum ada data.</p>
+            <p className="text-sm text-cloud-strong">Belum ada data.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+                  <tr className="border-b border-cloud text-left text-xs uppercase tracking-wide text-cloud-strong">
                     <th className="pb-2 pr-4 font-medium">Tanggal les</th>
                     <th className="pb-2 pr-4 font-medium">Durasi</th>
                     <th className="pb-2 pr-4 font-medium">Rate</th>
@@ -127,20 +138,20 @@ export default async function HalamanPendapatan() {
                 </thead>
                 <tbody>
                   {daftarPendapatan.map((baris) => (
-                    <tr key={baris.id} className="border-b border-line last:border-0">
-                      <td className="py-2 pr-4 text-muted">
+                    <tr key={baris.id} className="border-b border-cloud last:border-0">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {baris.les ? formatTanggal(baris.les.starts_at) : '-'}
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {formatJamPelajaran(Number(baris.hours))}
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {formatRupiah(Number(baris.tutor_rate))}
                       </td>
-                      <td className="py-2 pr-4 font-medium text-ink">
+                      <td className="py-2 pr-4 font-medium text-navy">
                         {formatRupiah(Number(baris.amount))}
                       </td>
-                      <td className="py-2 text-xs text-muted">
+                      <td className="py-2 text-xs text-cloud-strong">
                         {formatTanggal(baris.created_at)}
                       </td>
                     </tr>

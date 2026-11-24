@@ -63,10 +63,10 @@ export default async function DetailLogbookKelas({
   return (
     <KerangkaHalaman profil={profil}>
       <div className="mb-5">
-        <Link href={`/admin/kelas/${id}`} className="text-sm text-muted hover:text-ink">
+        <Link href={`/admin/kelas/${id}`} className="text-sm text-cloud-strong hover:text-navy">
           &larr; {kelas?.name ?? 'Kelas'}
         </Link>
-        <h1 className="mt-1 text-lg font-semibold text-ink">Logbook</h1>
+        <h1 className="mt-1 text-lg font-semibold text-navy">Logbook</h1>
       </div>
 
       <div className="grid gap-5">
@@ -88,35 +88,35 @@ export default async function DetailLogbookKelas({
               aksi={<BadgeStatus status={lb.status} />}
             >
               {lb.admin_note && (
-                <p className="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <p className="mb-4 rounded border border-gold/50 bg-gold-soft px-3 py-2 text-sm text-[#8A6D00]">
                   Catatan admin: {lb.admin_note}
                 </p>
               )}
 
               {entriLogbook.length === 0 ? (
-                <p className="text-sm text-muted">Belum ada entri.</p>
+                <p className="text-sm text-cloud-strong">Belum ada entri.</p>
               ) : (
                 <ul className="space-y-4">
                   {entriLogbook.map((e) => (
-                    <li key={e.id} className="border-l-2 border-line pl-4">
-                      <p className="text-xs text-muted">
+                    <li key={e.id} className="border-l-2 border-cloud pl-4">
+                      <p className="text-xs text-cloud-strong">
                         {e.les ? formatTanggalJam(e.les.starts_at) : 'Les tidak ditemukan'}
                       </p>
-                      <p className="mt-0.5 text-sm font-medium text-ink">{e.topic}</p>
+                      <p className="mt-0.5 text-sm font-medium text-navy">{e.topic}</p>
 
                       <dl className="mt-2 space-y-1.5 text-sm">
                         <div>
-                          <dt className="text-xs text-muted">Aktivitas</dt>
-                          <dd className="text-ink">{e.activities}</dd>
+                          <dt className="text-xs text-cloud-strong">Aktivitas</dt>
+                          <dd className="text-navy">{e.activities}</dd>
                         </div>
                         <div>
-                          <dt className="text-xs text-muted">Observasi tutor</dt>
-                          <dd className="text-ink">{e.tutor_observation}</dd>
+                          <dt className="text-xs text-cloud-strong">Observasi tutor</dt>
+                          <dd className="text-navy">{e.tutor_observation}</dd>
                         </div>
                         {e.next_recommendation && (
                           <div>
-                            <dt className="text-xs text-muted">Rekomendasi berikutnya</dt>
-                            <dd className="text-ink">{e.next_recommendation}</dd>
+                            <dt className="text-xs text-cloud-strong">Rekomendasi berikutnya</dt>
+                            <dd className="text-navy">{e.next_recommendation}</dd>
                           </div>
                         )}
                       </dl>

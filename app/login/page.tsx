@@ -41,21 +41,23 @@ export default function HalamanLogin() {
     <div className="flex min-h-screen items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-6">
-          <h1 className="text-xl font-semibold text-ink">Star Generation</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="text-xl font-semibold text-navy">
+            Star <span className="text-gold">Generation</span>
+          </h1>
+          <p className="mt-1 text-sm text-cloud-strong">
             Masuk untuk mengelola kelas, logbook, dan pembayaran.
           </p>
         </div>
 
         <form
           action={tanganiSubmit}
-          className="rounded-lg border border-line bg-surface p-5"
+          className="rounded-lg border border-cloud bg-surface p-5"
         >
           <div className="space-y-4">
             <div>
               <label
                 htmlFor="email"
-                className="mb-1 block text-sm font-medium text-ink"
+                className="mb-1 block text-sm font-medium text-navy"
               >
                 Email
               </label>
@@ -65,14 +67,14 @@ export default function HalamanLogin() {
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="mb-1 block text-sm font-medium text-ink"
+                className="mb-1 block text-sm font-medium text-navy"
               >
                 Password
               </label>
@@ -82,7 +84,7 @@ export default function HalamanLogin() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
               />
             </div>
 
@@ -94,15 +96,15 @@ export default function HalamanLogin() {
           </div>
         </form>
 
-        <div className="mt-5 rounded-lg border border-line bg-stone-50 p-4">
-          <p className="text-xs font-medium text-ink">Akun demo</p>
-          <p className="mt-1 text-xs text-muted">
-            Password semua akun: <code className="text-ink">{PASSWORD_DEMO}</code>
+        <div className="mt-5 rounded-lg border border-cloud bg-cloud/40 p-4">
+          <p className="text-xs font-medium text-navy">Akun demo</p>
+          <p className="mt-1 text-xs text-cloud-strong">
+            Password semua akun: <code className="text-navy">{PASSWORD_DEMO}</code>
           </p>
           <ul className="mt-2 space-y-1">
             {AKUN_DEMO.map((akun) => (
-              <li key={akun.email} className="text-xs text-muted">
-                <span className="text-ink">{akun.peran}</span>
+              <li key={akun.email} className="text-xs text-cloud-strong">
+                <span className="text-navy">{akun.peran}</span>
                 {' — '}
                 {akun.email}
               </li>

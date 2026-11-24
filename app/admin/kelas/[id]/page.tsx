@@ -95,11 +95,11 @@ export default async function DetailKelas({
     <KerangkaHalaman profil={profil}>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href="/admin/kelas" className="text-sm text-muted hover:text-ink">
+          <Link href="/admin/kelas" className="text-sm text-cloud-strong hover:text-navy">
             &larr; Kelas
           </Link>
           <div className="mt-1 flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-ink">{dataKelas.name}</h1>
+            <h1 className="text-lg font-semibold text-navy">{dataKelas.name}</h1>
             <BadgeStatus status={dataKelas.status} />
           </div>
         </div>
@@ -114,15 +114,16 @@ export default async function DetailKelas({
           keterangan={`${jumlahAktif} dari ${dataKelas.capacity} kursi terisi`}
         >
           {daftarPendaftaran.length === 0 ? (
-            <p className="text-sm text-muted">Belum ada siswa terdaftar.</p>
+            <p className="text-sm text-cloud-strong">Belum ada siswa terdaftar.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+                  <tr className="border-b border-cloud text-left text-xs uppercase tracking-wide text-cloud-strong">
                     <th className="pb-2 pr-4 font-medium">Nama</th>
                     <th className="pb-2 pr-4 font-medium">Paket</th>
                     <th className="pb-2 pr-4 font-medium">Sisa jam</th>
+                    <th className="pb-2 pr-4 font-medium">Rate saat beli</th>
                     <th className="pb-2 pr-4 font-medium">Invoice</th>
                     <th className="pb-2 font-medium">Status</th>
                   </tr>
@@ -134,23 +135,26 @@ export default async function DetailKelas({
                     const saldoSiswa = saldoPerPendaftaran.get(p.id);
 
                     return (
-                      <tr key={p.id} className="border-b border-line last:border-0">
+                      <tr key={p.id} className="border-b border-cloud last:border-0">
                         <td className="py-2 pr-4">
-                          <div className="font-medium text-ink">
+                          <div className="font-medium text-navy">
                             {p.siswa?.full_name ?? '-'}
                           </div>
-                          <div className="text-xs text-muted">{p.siswa?.email}</div>
+                          <div className="text-xs text-cloud-strong">{p.siswa?.email}</div>
                         </td>
-                        <td className="py-2 pr-4 text-muted">
+                        <td className="py-2 pr-4 text-cloud-strong">
                           {formatJamPelajaran(p.package_hours)}
                         </td>
-                        <td className="py-2 pr-4 text-muted">
+                        <td className="py-2 pr-4 text-cloud-strong">
                           {saldoSiswa
                             ? formatJamPelajaran(saldoSiswa.hours_remaining)
                             : '-'}
                         </td>
+                        <td className="py-2 pr-4 text-cloud-strong">
+                          {formatRupiah(p.rate_at_purchase)}
+                        </td>
                         <td className="py-2 pr-4">
-                          <div className="text-muted">{invoice?.invoice_number ?? '-'}</div>
+                          <div className="text-cloud-strong">{invoice?.invoice_number ?? '-'}</div>
                           <div className="text-xs">
                             {invoice ? (
                               <BadgeStatus status={invoice.status} />
@@ -171,20 +175,20 @@ export default async function DetailKelas({
           )}
 
           {jumlahAktif < dataKelas.capacity && siswaTersedia.length > 0 && (
-            <div className="mt-4 border-t border-line pt-4">
-              <p className="mb-2 text-sm font-medium text-ink">Tambah siswa</p>
+            <div className="mt-4 border-t border-cloud pt-4">
+              <p className="mb-2 text-sm font-medium text-navy">Tambah siswa</p>
               <FormAksi action={tambahSiswa} labelTombol="Daftarkan siswa">
                 <input type="hidden" name="kelas_id" value={id} />
 
                 <div>
-                  <label htmlFor="student_id" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="student_id" className="mb-1 block text-sm font-medium text-navy">
                     Siswa
                   </label>
                   <select
                     id="student_id"
                     name="student_id"
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   >
                     <option value="">Pilih siswa</option>
                     {siswaTersedia.map((s) => (
@@ -196,7 +200,7 @@ export default async function DetailKelas({
                 </div>
 
                 <div>
-                  <label htmlFor="paket_jam" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="paket_jam" className="mb-1 block text-sm font-medium text-navy">
                     Paket jam
                   </label>
                   <input
@@ -206,7 +210,7 @@ export default async function DetailKelas({
                     step="0.5"
                     defaultValue="12"
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   />
                 </div>
               </FormAksi>
@@ -214,7 +218,7 @@ export default async function DetailKelas({
           )}
 
           {jumlahAktif >= dataKelas.capacity && (
-            <p className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            <p className="mt-4 rounded border border-gold/50 bg-gold-soft px-3 py-2 text-sm text-[#8A6D00]">
               Kelas penuh. Naikkan kapasitas dulu kalau ingin menambah siswa.
             </p>
           )}
@@ -222,14 +226,14 @@ export default async function DetailKelas({
 
         <Kartu judul="Jadwal les" keterangan="20 les terakhir">
           {daftarLes.length === 0 ? (
-            <p className="text-sm text-muted">Belum ada jadwal.</p>
+            <p className="text-sm text-cloud-strong">Belum ada jadwal.</p>
           ) : (
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-cloud">
               {daftarLes.map((l) => (
                 <li key={l.id} className="flex items-center justify-between gap-3 py-2">
                   <div>
-                    <div className="text-sm text-ink">{formatTanggalJam(l.starts_at)}</div>
-                    <div className="text-xs text-muted">
+                    <div className="text-sm text-navy">{formatTanggalJam(l.starts_at)}</div>
+                    <div className="text-xs text-cloud-strong">
                       {formatJam(l.starts_at)} - {formatJam(l.ends_at)}
                     </div>
                   </div>
@@ -239,14 +243,14 @@ export default async function DetailKelas({
             </ul>
           )}
 
-          <div className="mt-4 border-t border-line pt-4">
-            <p className="mb-2 text-sm font-medium text-ink">Jadwalkan les</p>
+          <div className="mt-4 border-t border-cloud pt-4">
+            <p className="mb-2 text-sm font-medium text-navy">Jadwalkan les</p>
             <FormAksi action={buatLes} labelTombol="Simpan jadwal">
               <input type="hidden" name="kelas_id" value={id} />
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="mulai" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="mulai" className="mb-1 block text-sm font-medium text-navy">
                     Mulai
                   </label>
                   <input
@@ -254,12 +258,12 @@ export default async function DetailKelas({
                     name="mulai"
                     type="datetime-local"
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="selesai" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="selesai" className="mb-1 block text-sm font-medium text-navy">
                     Selesai
                   </label>
                   <input
@@ -267,7 +271,7 @@ export default async function DetailKelas({
                     name="selesai"
                     type="datetime-local"
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   />
                 </div>
               </div>
@@ -278,15 +282,15 @@ export default async function DetailKelas({
         <Kartu judul="Pengaturan">
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <p className="mb-2 text-sm font-medium text-ink">Rate per jam</p>
-              <p className="mb-3 text-xs text-muted">
+              <p className="mb-2 text-sm font-medium text-navy">Rate per jam</p>
+              <p className="mb-3 text-xs text-cloud-strong">
                 Rate siswa saat ini {formatRupiah(dataKelas.student_rate)}. Perubahan
                 hanya berlaku untuk pendaftaran baru; invoice lama tidak berubah.
               </p>
               <FormAksi action={ubahRateKelas} labelTombol="Simpan rate">
                 <input type="hidden" name="kelas_id" value={id} />
                 <div>
-                  <label htmlFor="rate_siswa" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="rate_siswa" className="mb-1 block text-sm font-medium text-navy">
                     Rate siswa
                   </label>
                   <input
@@ -295,11 +299,11 @@ export default async function DetailKelas({
                     type="number"
                     defaultValue={dataKelas.student_rate ?? ''}
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label htmlFor="rate_tutor" className="mb-1 block text-sm font-medium text-ink">
+                  <label htmlFor="rate_tutor" className="mb-1 block text-sm font-medium text-navy">
                     Rate tutor
                   </label>
                   <input
@@ -308,15 +312,15 @@ export default async function DetailKelas({
                     type="number"
                     defaultValue={dataKelas.tutor_rate ?? ''}
                     required
-                    className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
                   />
                 </div>
               </FormAksi>
             </div>
 
             <div>
-              <p className="mb-2 text-sm font-medium text-ink">Status kelas</p>
-              <p className="mb-3 text-xs text-muted">
+              <p className="mb-2 text-sm font-medium text-navy">Status kelas</p>
+              <p className="mb-3 text-xs text-cloud-strong">
                 Kelas yang diarsipkan tidak menerima siswa baru, tapi data lama tetap
                 tersimpan.
               </p>

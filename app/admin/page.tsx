@@ -61,7 +61,7 @@ export default async function BerandaAdmin() {
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Ringkasan</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Ringkasan</h1>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <AngkaRingkas label="Kelas aktif" nilai={String(kelasAktif.length)} />
@@ -83,19 +83,19 @@ export default async function BerandaAdmin() {
         aksi={
           <Link
             href="/admin/kelas#tambah-kelas"
-            className="text-sm font-medium text-accent hover:underline"
+            className="text-sm font-medium text-gold hover:underline"
           >
             Tambah kelas
           </Link>
         }
       >
         {daftarKelas.length === 0 ? (
-          <p className="text-sm text-muted">Belum ada kelas.</p>
+          <p className="text-sm text-cloud-strong">Belum ada kelas.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+                <tr className="border-b border-cloud text-left text-xs uppercase tracking-wide text-cloud-strong">
                   <th className="pb-2 pr-4 font-medium">Nama</th>
                   <th className="pb-2 pr-4 font-medium">Tutor</th>
                   <th className="pb-2 pr-4 font-medium">Siswa</th>
@@ -111,25 +111,25 @@ export default async function BerandaAdmin() {
                   ).length;
 
                   return (
-                    <tr key={kelas.id} className="border-b border-line last:border-0">
+                    <tr key={kelas.id} className="border-b border-cloud last:border-0">
                       <td className="py-2 pr-4">
                         <Link
                           href={`/admin/kelas/${kelas.id}`}
-                          className="font-medium text-ink hover:text-accent hover:underline"
+                          className="font-medium text-navy hover:text-gold hover:underline"
                         >
                           {kelas.name}
                         </Link>
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {kelas.tutor?.full_name ?? '-'}
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {jumlahSiswa}/{kelas.capacity}
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {formatRupiah(kelas.student_rate)}
                       </td>
-                      <td className="py-2 pr-4 text-muted">
+                      <td className="py-2 pr-4 text-cloud-strong">
                         {formatRupiah(kelas.tutor_rate)}
                       </td>
                       <td className="py-2">
@@ -159,9 +159,9 @@ function AngkaRingkas({
   href?: string;
 }) {
   const isi = (
-    <div className="rounded-lg border border-line bg-surface px-5 py-4">
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-ink">{nilai}</p>
+    <div className="rounded-lg border border-cloud bg-surface px-5 py-4">
+      <p className="text-xs uppercase tracking-wide text-cloud-strong">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-navy">{nilai}</p>
     </div>
   );
 
@@ -170,7 +170,7 @@ function AngkaRingkas({
   }
 
   return (
-    <Link href={href} className="block hover:border-stone-300">
+    <Link href={href} className="block hover:border-cloud-strong">
       {isi}
     </Link>
   );

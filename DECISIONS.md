@@ -48,10 +48,16 @@ invoice ulang tiap tampil. Ditolak karena invoice yang sudah dibayar akan
 berubah retroaktif — masalah pembukuan, bukan masalah teknis.
 
 **Konsekuensi.** Ada dua sumber rate: `classes.student_rate` (berlaku sekarang)
-dan `enrollments.rate_at_purchase` (berlaku saat pembelian). UI harus memilih
-dengan sadar. Saat ini detail kelas hanya menampilkan rate kelas di kartu
-Pengaturan; `rate_at_purchase` sudah tersimpan dan dipakai untuk menghitung
-invoice, tetapi belum ditampilkan per baris di tabel siswa.
+dan `enrollments.rate_at_purchase` (berlaku saat pembelian). UI memilih dengan
+sadar: tabel siswa menampilkan `rate_at_purchase` per baris, kartu Pengaturan
+menampilkan rate kelas sekarang.
+
+Terkait penjadwalan: brief meminta tutor menjadwalkan les untuk kelasnya.
+Form "Jadwalkan les" ada di beranda tutor (`/tutor`) dan panggil Server Action
+yang sama dengan admin (`buatLes`). Aturan yang ditegakkan tetap dari
+database: tutor hanya bisa untuk kelasnya sendiri (policy
+`lessons_write_tutor` memeriksa `tutor_id = auth.uid()`), dan overlap jadwal
+ditolak constraint eksklusif. Admin tetap bisa menjadwalkan dari detail kelas.
 
 ### A3. Siswa kehabisan jam, dan les yang dibatalkan
 
@@ -238,18 +244,22 @@ tidak diterjemahkan, sisanya Indonesia.
 
 ### B9. Tema
 
-**Keputusan.** Palet flat (ink, muted, line, surface, canvas, satu aksen teal),
-radius 6px, base font 15px. Tanpa gradien, tanpa sidebar.
+**Keputusan.** Token visual theme dari PRD dipakai penuh: Navy `#2F3F5F`
+(teks utama, header, tombol utama), Gold `#F1C019` (aksen: logo, tab aktif,
+border fokus, badge peringatan lembut), Surface `#FAFDFF`, Cloud `#E0E2E7` /
+`#6E7585`, status `#0AB848` / `#FF2819`, font DM Sans, radius 6px.
 
-**Alasan.** Data di aplikasi ini padat (tabel siswa, invoice, logbook). Yang
-membantu adalah kontras teks dan jarak, bukan dekorasi. Navigasi per peran
-hanya 3-4 halaman, jadi tab di header cukup dan tidak memakan lebar layar
-seperti sidebar.
+**Alasan.** Ini instruksi eksplisit brief ("Use the Star Generation theme so
+the project feels like part of our product"), bukan preferensi rasa. Pemakaian
+warna tetap mengikuti prinsip keterbacaan: Navy untuk teks dan tombol utama
+(putih di atas Navy lolos kontras; putih di atas Gold tidak, jadi Gold tidak
+pernah dipakai sebagai warna tombol), Gold hanya sebagai aksen kecil. Tabel
+padat tetap mudah dipindai karena kontras teks-tabel berasal dari Cloud.
 
-**Konsekuensi.** Warna dari PRD (navy/gold) tidak dipakai. PRD bagian 10
-mendaftarkan token tersebut, tapi brief utamanya adalah keterbacaan; palet netral
-dengan satu aksen membuat status (`paid`, `approved`, `unpaid`, `returned`)
-terbaca tanpa bersaing dengan warna merek.
+**Konsekuensi.** Semua warna lewat token Tailwind di `tailwind.config.js`
+(`navy`, `gold`, `surface`, `cloud`, `success`, `danger`). Mengganti brand
+berarti mengedit satu file. Font DM Sans dimuat lewat `next/font` di
+`app/layout.tsx` sehingga tidak ada layout shift saat font tiba.
 
 ### B10. Verifikasi sesi tanpa round-trip, dan `router.refresh()` setelah aksi
 
@@ -317,9 +327,21 @@ sebagai arah, dengan urutan pengerjaan berikut dan alasan pemotongannya.
 Yang sengaja tidak dikerjakan: laporan PDF, kalender drag-and-drop. Keduanya
 mahal untuk satu hari kerja dan tidak menambah kebenaran data.
 
-Catatan jujur: pada commit terakhir, panel billing, export CSV, dan validasi
-real-time **belum ada di UI**. Yang sudah jadi adalah bagian tersulitnya, yaitu
-angka margin yang benar dan teruji di database. Lihat ARCHITECTURE.md bagian 7.
+Status akhir: dua dari tiga selesai dan teruji.
+
+1. **Billing health panel** — selesai. Halaman `/admin/billing` menampilkan
+   empat angka ringkas (invoice belum dibayar + nominalnya, invoice tua
+   > 7 hari, siswa dengan sisa jam < 3 jam, total margin) plus tiga tabel
+   detail. Sumber datanya view yang sudah ada; tidak ada logika bisnis baru,
+   hanya penyaringan dan tampilan. Teruji di browser sebagai admin.
+2. **Export CSV earnings tutor** — selesai. Route handler
+   `/tutor/pendapatan/unduh`. RLS tetap menentukan baris yang diunduh: tutor
+   hanya mendapat miliknya, admin mendapat rekap semua. Ada proteksi formula
+   injection (prefiks `'` untuk sel yang diawali `=+-@`). Teruji di browser
+   sebagai tutor dan admin.
+3. **Validasi jadwal real-time** — sengaja tidak dibangun. Database sudah
+   menolak overlap dengan pesan berbahasa Indonesia; menambah penghitungan
+   klien hanya menyalin aturan yang sudah ditegakkan di tempat yang benar.
 
 ---
 

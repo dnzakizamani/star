@@ -67,16 +67,16 @@ export default async function BerandaSiswa() {
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Kelas Saya</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Kelas Saya</h1>
 
       <div className="grid gap-5">
         <Kartu judul="Pendaftaran" keterangan={`${daftarPendaftaran.length} kelas`}>
           {daftarPendaftaran.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-cloud-strong">
               Anda belum terdaftar di kelas mana pun. Hubungi admin.
             </p>
           ) : (
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-cloud">
               {daftarPendaftaran.map((p) => {
                 const invoice = Array.isArray(p.invoice) ? p.invoice[0] : p.invoice;
                 const saldoSiswa = saldoPerPendaftaran.get(p.id);
@@ -86,10 +86,10 @@ export default async function BerandaSiswa() {
                   <li key={p.id} className="py-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm font-medium text-ink">
+                        <p className="text-sm font-medium text-navy">
                           {p.kelas?.name ?? 'Kelas'}
                         </p>
-                        <p className="text-xs text-muted">
+                        <p className="text-xs text-cloud-strong">
                           Paket {formatJamPelajaran(p.package_hours)} · terdaftar{' '}
                           {formatTanggal(p.created_at)}
                         </p>
@@ -101,16 +101,16 @@ export default async function BerandaSiswa() {
                     </div>
 
                     {!lunas && (
-                      <p className="mt-2 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                      <p className="mt-2 rounded border border-gold/50 bg-gold-soft px-3 py-2 text-xs text-[#8A6D00]">
                         Akses kelas terbuka setelah invoice dibayar. Hubungi admin
                         untuk konfirmasi pembayaran.
                       </p>
                     )}
 
                     {lunas && saldoSiswa && (
-                      <p className="mt-2 text-xs text-muted">
+                      <p className="mt-2 text-xs text-cloud-strong">
                         Sisa jam:{' '}
-                        <span className="font-medium text-ink">
+                        <span className="font-medium text-navy">
                           {formatJamPelajaran(saldoSiswa.hours_remaining)}
                         </span>{' '}
                         dari {formatJamPelajaran(saldoSiswa.package_hours)}
@@ -125,13 +125,13 @@ export default async function BerandaSiswa() {
 
         <Kartu judul="Jadwal mendatang">
           {jadwal.length === 0 ? (
-            <p className="text-sm text-muted">Belum ada jadwal les.</p>
+            <p className="text-sm text-cloud-strong">Belum ada jadwal les.</p>
           ) : (
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-cloud">
               {jadwal.map((l) => (
                 <li key={l.id} className="py-2.5">
-                  <p className="text-sm text-ink">{l.kelas?.name ?? 'Kelas'}</p>
-                  <p className="text-xs text-muted">{formatTanggal(l.starts_at)}</p>
+                  <p className="text-sm text-navy">{l.kelas?.name ?? 'Kelas'}</p>
+                  <p className="text-xs text-cloud-strong">{formatTanggal(l.starts_at)}</p>
                 </li>
               ))}
             </ul>
@@ -142,13 +142,13 @@ export default async function BerandaSiswa() {
           <div className="flex flex-wrap gap-2">
             <Link
               href="/siswa/tagihan"
-              className="rounded border border-line px-3 py-1.5 text-sm text-ink hover:bg-stone-50"
+              className="rounded border border-cloud px-3 py-1.5 text-sm text-navy hover:bg-cloud/30"
             >
               Lihat tagihan
             </Link>
             <Link
               href="/siswa/logbook"
-              className="rounded border border-line px-3 py-1.5 text-sm text-ink hover:bg-stone-50"
+              className="rounded border border-cloud px-3 py-1.5 text-sm text-navy hover:bg-cloud/30"
             >
               Lihat logbook
             </Link>

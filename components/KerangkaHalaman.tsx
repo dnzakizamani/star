@@ -12,6 +12,7 @@ import { BadgeStatus } from './BadgeStatus';
 export const MENU_PER_PERAN: Record<string, { href: string; label: string }[]> = {
   admin: [
     { href: '/admin', label: 'Ringkasan' },
+    { href: '/admin/billing', label: 'Billing' },
     { href: '/admin/kelas', label: 'Kelas' },
     { href: '/admin/invoice', label: 'Invoice' },
     { href: '/admin/logbook', label: 'Logbook' },
@@ -39,21 +40,22 @@ export function KerangkaHalaman({
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-line bg-surface">
+      <header className="bg-navy text-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold tracking-tight text-ink">
-              Star Generation
+            {/* Gold dipakai di logo sebagai aksen brand, sesuai visual theme. */}
+            <span className="text-sm font-semibold tracking-tight text-white">
+              Star <span className="text-gold">Generation</span>
             </span>
             <BadgeStatus status={profil.role} />
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted">{profil.full_name}</span>
+            <span className="text-sm text-white/80">{profil.full_name}</span>
             <form action={keluarDariAkun}>
               <button
                 type="submit"
-                className="text-sm text-muted underline underline-offset-2 hover:text-ink"
+                className="text-sm text-white/80 underline underline-offset-2 hover:text-gold"
               >
                 Keluar
               </button>
@@ -66,7 +68,7 @@ export function KerangkaHalaman({
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap border-b-2 border-transparent px-2 py-2.5 text-sm text-muted hover:border-line hover:text-ink"
+              className="whitespace-nowrap border-b-2 border-transparent px-2 py-2.5 text-sm text-white/70 hover:border-gold hover:text-white"
             >
               {item.label}
             </Link>

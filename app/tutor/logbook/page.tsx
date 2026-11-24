@@ -74,7 +74,7 @@ export default async function HalamanLogbookTutor({
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Logbook</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Logbook</h1>
 
       {daftarKelas.length > 1 && (
         <div className="mb-4 flex flex-wrap gap-1">
@@ -82,8 +82,8 @@ export default async function HalamanLogbookTutor({
             href="/tutor/logbook"
             className={`rounded border px-3 py-1 text-sm ${
               !filterKelas
-                ? 'border-accent bg-accent-soft text-accent'
-                : 'border-line bg-surface text-muted hover:text-ink'
+                ? 'border-gold bg-gold-soft text-gold'
+                : 'border-cloud bg-surface text-cloud-strong hover:text-navy'
             }`}
           >
             Semua kelas
@@ -94,8 +94,8 @@ export default async function HalamanLogbookTutor({
               href={`/tutor/logbook?kelas=${k.id}`}
               className={`rounded border px-3 py-1 text-sm ${
                 filterKelas === k.id
-                  ? 'border-accent bg-accent-soft text-accent'
-                  : 'border-line bg-surface text-muted hover:text-ink'
+                  ? 'border-gold bg-gold-soft text-gold'
+                  : 'border-cloud bg-surface text-cloud-strong hover:text-navy'
               }`}
             >
               {k.name}
@@ -126,13 +126,13 @@ export default async function HalamanLogbookTutor({
               aksi={<BadgeStatus status={lb.status} />}
             >
               {lb.admin_note && (
-                <p className="mb-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                <p className="mb-4 rounded border border-gold/50 bg-gold-soft px-3 py-2 text-sm text-[#8A6D00]">
                   Dikembalikan admin: {lb.admin_note}
                 </p>
               )}
 
               {lesPeriode.length === 0 ? (
-                <p className="text-sm text-muted">
+                <p className="text-sm text-cloud-strong">
                   Belum ada les selesai di bulan ini.
                 </p>
               ) : (
@@ -142,8 +142,8 @@ export default async function HalamanLogbookTutor({
                     const entri = Array.isArray(l.entri) ? l.entri[0] : l.entri;
 
                     return (
-                      <li key={l.id} className="border-l-2 border-line pl-4">
-                        <p className="text-xs text-muted">
+                      <li key={l.id} className="border-l-2 border-cloud pl-4">
+                        <p className="text-xs text-cloud-strong">
                           {formatTanggal(l.starts_at)} · {formatJam(l.starts_at)} -{' '}
                           {formatJam(l.ends_at)}
                         </p>
@@ -190,14 +190,14 @@ export default async function HalamanLogbookTutor({
                         ) : entri ? (
                           // Logbook terkunci: tampilkan sebagai teks, bukan form.
                           <div className="mt-1">
-                            <p className="text-sm font-medium text-ink">{entri.topic}</p>
-                            <p className="mt-1 text-sm text-muted">{entri.activities}</p>
-                            <p className="mt-1 text-sm text-muted">
+                            <p className="text-sm font-medium text-navy">{entri.topic}</p>
+                            <p className="mt-1 text-sm text-cloud-strong">{entri.activities}</p>
+                            <p className="mt-1 text-sm text-cloud-strong">
                               {entri.tutor_observation}
                             </p>
                           </div>
                         ) : (
-                          <p className="mt-1 text-sm text-muted">
+                          <p className="mt-1 text-sm text-cloud-strong">
                             Belum ada entri untuk les ini.
                           </p>
                         )}
@@ -208,8 +208,8 @@ export default async function HalamanLogbookTutor({
               )}
 
               {bisaDiisi && lesPeriode.length > 0 && (
-                <div className="mt-5 border-t border-line pt-4">
-                  <p className="mb-2 text-xs text-muted">
+                <div className="mt-5 border-t border-cloud pt-4">
+                  <p className="mb-2 text-xs text-cloud-strong">
                     Isi semua les di atas, lalu kirim ke admin. Setelah dikirim,
                     entri tidak bisa diubah sampai admin mengembalikannya.
                   </p>
@@ -224,7 +224,7 @@ export default async function HalamanLogbookTutor({
 
         {daftarLogbook.length === 0 && (
           <Kartu>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-cloud-strong">
               Belum ada logbook. Logbook terbuka otomatis setelah les ditandai
               selesai.
             </p>
@@ -253,7 +253,7 @@ function IsianTeks({
 }) {
   return (
     <div>
-      <label htmlFor={`${name}`} className="mb-1 block text-sm font-medium text-ink">
+      <label htmlFor={`${name}`} className="mb-1 block text-sm font-medium text-navy">
         {label}
       </label>
       <input
@@ -263,7 +263,7 @@ function IsianTeks({
         defaultValue={defaultValue}
         placeholder={placeholder}
         required={wajib}
-        className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+        className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
       />
     </div>
   );
@@ -284,7 +284,7 @@ function IsianArea({
 }) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-ink">
+      <label htmlFor={name} className="mb-1 block text-sm font-medium text-navy">
         {label}
       </label>
       <textarea
@@ -294,7 +294,7 @@ function IsianArea({
         defaultValue={defaultValue}
         placeholder={placeholder}
         required={wajib}
-        className="w-full rounded border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+        className="w-full rounded border border-cloud px-3 py-2 text-sm focus:border-gold focus:outline-none"
       />
     </div>
   );

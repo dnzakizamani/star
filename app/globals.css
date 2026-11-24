@@ -6,17 +6,18 @@
    never have to hunt for where a class is defined. */
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
 }
 
 body {
-  background-color: #faf9f7;
-  color: #1c1917;
+  background-color: #fafdff;
+  color: #2f3f5f;
   -webkit-font-smoothing: antialiased;
 }
 
 /* Keep focus rings visible for keyboard users without ugly browser defaults. */
 :focus-visible {
-  outline: 2px solid #0f766e;
+  outline: 2px solid #f1c019;
   outline-offset: 2px;
 }

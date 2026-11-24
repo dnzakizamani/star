@@ -54,7 +54,7 @@ export default async function HalamanInvoice({
 
   return (
     <KerangkaHalaman profil={profil}>
-      <h1 className="mb-5 text-lg font-semibold text-ink">Invoice</h1>
+      <h1 className="mb-5 text-lg font-semibold text-navy">Invoice</h1>
 
       <div className="mb-4 flex gap-1">
         {PILIHAN_FILTER.map((pilihan) => {
@@ -67,8 +67,8 @@ export default async function HalamanInvoice({
               href={href}
               className={`rounded border px-3 py-1 text-sm ${
                 aktif
-                  ? 'border-accent bg-accent-soft text-accent'
-                  : 'border-line bg-surface text-muted hover:text-ink'
+                  ? 'border-gold bg-gold-soft text-gold'
+                  : 'border-cloud bg-surface text-cloud-strong hover:text-navy'
               }`}
             >
               {pilihan.label}
@@ -82,12 +82,12 @@ export default async function HalamanInvoice({
         keterangan={`${daftarInvoice.length} invoice`}
       >
         {daftarInvoice.length === 0 ? (
-          <p className="text-sm text-muted">Tidak ada invoice pada filter ini.</p>
+          <p className="text-sm text-cloud-strong">Tidak ada invoice pada filter ini.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
+                <tr className="border-b border-cloud text-left text-xs uppercase tracking-wide text-cloud-strong">
                   <th className="pb-2 pr-4 font-medium">Nomor</th>
                   <th className="pb-2 pr-4 font-medium">Siswa</th>
                   <th className="pb-2 pr-4 font-medium">Kelas</th>
@@ -98,26 +98,26 @@ export default async function HalamanInvoice({
               </thead>
               <tbody>
                 {daftarInvoice.map((inv) => (
-                  <tr key={inv.id} className="border-b border-line last:border-0">
+                  <tr key={inv.id} className="border-b border-cloud last:border-0">
                     <td className="py-2 pr-4">
-                      <div className="font-medium text-ink">{inv.invoice_number}</div>
-                      <div className="text-xs text-muted">
+                      <div className="font-medium text-navy">{inv.invoice_number}</div>
+                      <div className="text-xs text-cloud-strong">
                         {formatTanggal(inv.created_at)}
                       </div>
                     </td>
-                    <td className="py-2 pr-4 text-muted">
+                    <td className="py-2 pr-4 text-cloud-strong">
                       {inv.pendaftaran?.siswa?.full_name ?? '-'}
                     </td>
-                    <td className="py-2 pr-4 text-muted">
+                    <td className="py-2 pr-4 text-cloud-strong">
                       {inv.pendaftaran?.kelas?.name ?? '-'}
                     </td>
-                    <td className="py-2 pr-4 text-ink">
+                    <td className="py-2 pr-4 text-navy">
                       {formatRupiah(inv.amount)}
                     </td>
                     <td className="py-2 pr-4">
                       <BadgeStatus status={inv.status} />
                       {inv.paid_at && (
-                        <div className="mt-1 text-xs text-muted">
+                        <div className="mt-1 text-xs text-cloud-strong">
                           {formatTanggal(inv.paid_at)}
                         </div>
                       )}
@@ -132,7 +132,7 @@ export default async function HalamanInvoice({
                           <input type="hidden" name="invoice_id" value={inv.id} />
                         </FormAksi>
                       ) : (
-                        <span className="text-xs text-muted">-</span>
+                        <span className="text-xs text-cloud-strong">-</span>
                       )}
                     </td>
                   </tr>

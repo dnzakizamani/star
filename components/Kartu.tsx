@@ -19,16 +19,16 @@ export function Kartu({
   return (
     <section
       id={id}
-      className="scroll-mt-24 rounded-lg border border-line bg-surface"
+      className="scroll-mt-24 rounded-lg border border-cloud bg-surface"
     >
       {(judul || aksi) && (
-        <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-cloud px-5 py-4">
           <div>
             {judul && (
-              <h2 className="text-base font-semibold text-ink">{judul}</h2>
+              <h2 className="text-base font-semibold text-navy">{judul}</h2>
             )}
             {keterangan && (
-              <p className="mt-0.5 text-sm text-muted">{keterangan}</p>
+              <p className="mt-0.5 text-sm text-cloud-strong">{keterangan}</p>
             )}
           </div>
           {aksi}

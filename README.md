@@ -178,6 +178,7 @@ app/
   aksi-auth.ts                 server action login/logout
   admin/
     page.tsx                   ringkasan: kelas, invoice, logbook
+    billing/page.tsx           kesehatan billing: uncollected, jam menipis, margin
     kelas/page.tsx             daftar + form tambah kelas
     kelas/[id]/page.tsx        detail kelas: siswa, sisa jam, jadwal, rate
     kelas/[id]/logbook/page.tsx  isi logbook satu kelas
@@ -185,9 +186,10 @@ app/
     logbook/page.tsx           review: setujui / kembalikan
     aksi.ts                    server action admin
   tutor/
-    page.tsx                   jadwal mendatang + kelas yang diampu
+    page.tsx                   jadwal mendatang + form jadwalkan les
     logbook/page.tsx           isi entri, submit
     pendapatan/page.tsx        earnings per bulan dari earnings_ledger
+    pendapatan/unduh/route.ts  unduh CSV (RLS menentukan barisnya)
     aksi.ts                    server action tutor
   siswa/
     page.tsx                   kelas yang diikuti + sisa jam + jadwal

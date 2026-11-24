@@ -33,9 +33,10 @@ export function FormAksi({
   const router = useRouter();
 
   const kelasTombol: Record<string, string> = {
-    utama: 'bg-accent text-white border-accent hover:bg-teal-800',
-    sekunder: 'bg-surface text-ink border-line hover:bg-stone-50',
-    bahaya: 'bg-surface text-danger border-red-200 hover:bg-red-50',
+    // Navy untuk tombol utama: teks putih di atas gold tidak lolos kontras.
+    utama: 'bg-navy text-white border-navy hover:bg-navy-soft',
+    sekunder: 'bg-surface text-navy border-cloud hover:bg-cloud/30',
+    bahaya: 'bg-surface text-danger border-danger/40 hover:bg-danger/10',
   };
 
   async function tanganiSubmit(formData: FormData) {

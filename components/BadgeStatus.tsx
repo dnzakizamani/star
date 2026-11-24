@@ -5,10 +5,10 @@
 type NadaWarna = 'netral' | 'ok' | 'warn' | 'danger';
 
 const WARNA_PER_NADA: Record<NadaWarna, string> = {
-  netral: 'bg-stone-100 text-stone-700 border-stone-200',
-  ok: 'bg-green-50 text-green-700 border-green-200',
-  warn: 'bg-amber-50 text-amber-700 border-amber-200',
-  danger: 'bg-red-50 text-red-700 border-red-200',
+  netral: 'bg-cloud/40 text-navy border-cloud',
+  ok: 'bg-success/10 text-[#078A36] border-success/40',
+  warn: 'bg-gold-soft text-[#8A6D00] border-gold/60',
+  danger: 'bg-danger/10 text-danger border-danger/40',
 };
 
 // Menerjemahkan status database menjadi teks Indonesia + warna.
