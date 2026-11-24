@@ -24,19 +24,23 @@ export default async function HalamanKelas() {
   const profil = await wajibPeran('admin');
   const supabase = await buatClientServer();
 
-  const { data: kelas } = await supabase
-    .from('v_classes_safe')
-    .select('*, tutor:profiles!classes_tutor_id_fkey(full_name), pendaftaran:enrollments(id, status)')
-    .order('created_at', { ascending: false });
+  // Dua query ini tidak saling bergantung, jadi dijalankan bersamaan.
+  // Kalau ditulis berurutan, waktu totalnya jadi jumlah keduanya.
+  const [{ data: kelas }, { data: tutor }] = await Promise.all([
+    supabase
+      .from('v_classes_safe')
+      .select('*, tutor:profiles!classes_tutor_id_fkey(full_name), pendaftaran:enrollments(id, status)')
+      .order('created_at', { ascending: false }),
+
+    // Tutor untuk pilihan di form.
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('role', 'tutor')
+      .order('full_name'),
+  ]);
 
   const daftarKelas = (kelas ?? []) as unknown as BarisKelas[];
-
-  // Tutor untuk pilihan di form.
-  const { data: tutor } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .eq('role', 'tutor')
-    .order('full_name');
 
   return (
     <KerangkaHalaman profil={profil}>

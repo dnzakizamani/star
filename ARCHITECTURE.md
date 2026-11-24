@@ -305,7 +305,7 @@ stateDiagram-v2
 `lib/session.ts` adalah satu-satunya tempat yang memutuskan "boleh masuk atau
 tidak":
 
-- `ambilProfilSekarang()` — `getUser()` lalu baca `profiles`
+- `ambilProfilSekarang()` — `getClaims()` lalu baca `profiles`
 - `wajibLogin()` — redirect `/login` kalau null
 - `wajibPeran('admin' | 'tutor' | 'student')` — redirect `/tidak-berhak` kalau
   role tidak cocok
@@ -332,13 +332,35 @@ browser (realtime, upload), polanya sudah ada dan tidak perlu ditemukan ulang.
 access token yang berumur 1 jam diperbarui sebelum halaman dirender. Tanpa itu
 user terlihat logout padahal refresh token masih valid.
 
+Halaman tidak memanggil `getUser()` lagi. `lib/session.ts` memakai
+`getClaims()`, yang memverifikasi tanda tangan JWT secara lokal memakai WebCrypto
+dan kunci publik yang di-cache. Project ini memakai signing key asimetris
+(ES256, terlihat di `alg` pada JWT dan tersedia di
+`/auth/v1/.well-known/jwks.json`), jadi verifikasinya tidak butuh round-trip.
+
+Ini penting untuk kecepatan: satu `getUser()` adalah satu round-trip HTTP ke
+Supabase Auth, dan jarak server aplikasi ke Supabase menentukan besarnya.
+Dua panggilan per request (middleware + halaman) berarti dua round-trip yang
+dibayar di setiap klik. Setelah halaman memakai `getClaims()`, sisa satu
+round-trip saja, yaitu milik middleware — dan yang itu memang diperlukan untuk
+refresh token.
+
+Kalau suatu saat project pindah ke signing key simetris (HS256), `getClaims()`
+otomatis kembali menjadi panggilan jaringan. Tidak ada yang perlu diubah, tapi
+keuntungan latensinya hilang; itu konsekuensi yang perlu diketahui.
+
 ### Server Actions
 
 Semua mutasi lewat Server Action (`app/admin/aksi.ts`, `app/tutor/aksi.ts`,
 `app/aksi-auth.ts`), bukan API route:
 
 - tidak perlu `fetch` dan parsing body
-- `revalidatePath` menyegarkan data yang terpengaruh dalam satu panggilan
+- `revalidatePath` menandai data yang terpengaruh sebagai basi. Penting:
+  Server Action yang dipanggil sebagai fungsi biasa dari Client Component
+  (pola di `FormAksi`) TIDAK otomatis mengirim ulang hasil render halaman.
+  Karena itu `FormAksi` memanggil `router.refresh()` setelah sukses. Tanpa itu
+  pesan sukses muncul tapi badge dan daftar masih versi lama, sehingga user
+  merasa harus mengklik dua kali.
 - error database diterjemahkan ke kalimat Indonesia di satu fungsi
   (`terjemahkanErrorDatabase`), dicocokkan lewat kata kunci
 

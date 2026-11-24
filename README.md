@@ -290,8 +290,10 @@ pun.
   ke database.
 - **`NEXT_PUBLIC_*` terkunci saat build**: nilainya di-inline ke bundle
   JavaScript. Mengubah URL atau key berarti build ulang image, bukan restart.
-- **Jangan pakai `getSession()`** untuk memvalidasi login; pakai `getUser()`.
-  Yang pertama hanya membaca cookie, yang kedua memverifikasi token ke server.
+- **Jangan pakai `getSession()`** untuk memvalidasi login. Itu hanya membaca
+  cookie tanpa memverifikasi apa pun. Yang dipakai: `getClaims()` di halaman
+  (verifikasi tanda tangan JWT lokal, karena project ini ES256) dan `getUser()`
+  di middleware (perlu karena harus menyegarkan token).
 - **Middleware** menyegarkan token dan memasang header keamanan
   (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`).
 - **`npm run lint`** memakai ESLint 9 dengan flat config (`eslint.config.mjs`).

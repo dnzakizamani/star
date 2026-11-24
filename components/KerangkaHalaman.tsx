@@ -9,7 +9,7 @@ import { BadgeStatus } from './BadgeStatus';
 
 // Menu berbeda per peran. Ditulis sebagai data, bukan if bersarang,
 // supaya menambah halaman cukup menambah satu baris.
-const MENU_PER_PERAN: Record<string, { href: string; label: string }[]> = {
+export const MENU_PER_PERAN: Record<string, { href: string; label: string }[]> = {
   admin: [
     { href: '/admin', label: 'Ringkasan' },
     { href: '/admin/kelas', label: 'Kelas' },

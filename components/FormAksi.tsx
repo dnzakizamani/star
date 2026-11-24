@@ -10,6 +10,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PesanError, PesanSukses } from './Pesan';
 
 type HasilAksi = { pesanError?: string; pesanSukses?: string } | undefined;
@@ -29,6 +30,7 @@ export function FormAksi({
   const [pesanError, setPesanError] = useState<string | null>(null);
   const [pesanSukses, setPesanSukses] = useState<string | null>(null);
   const [sedangProses, setSedangProses] = useState(false);
+  const router = useRouter();
 
   const kelasTombol: Record<string, string> = {
     utama: 'bg-accent text-white border-accent hover:bg-teal-800',
@@ -48,6 +50,16 @@ export function FormAksi({
     }
     if (hasil?.pesanSukses) {
       setPesanSukses(hasil.pesanSukses);
+
+      // Kenapa perlu router.refresh()?
+      // ==============================
+      // Server Action dipanggil di sini sebagai fungsi biasa, bukan lewat
+      // atribut action pada <form>. Di jalur itu Next.js TIDAK mengirim ulang
+      // hasil render halaman: revalidatePath() hanya menandai cache basi.
+      // Akibatnya pesan sukses muncul tapi badge/daftar masih versi lama, dan
+      // user harus mengklik lagi supaya perubahannya terlihat.
+      // refresh() memaksa Server Component dirender ulang dengan data baru.
+      router.refresh();
     }
 
     setSedangProses(false);

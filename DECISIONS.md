@@ -233,7 +233,7 @@ Tapi `rate_at_purchase`, `earnings_ledger`, `logbook` adalah istilah yang lebih
 tepat dalam Inggris dan sudah dipakai di PRD.
 
 **Konsekuensi.** Ada campuran dalam satu file (`wajibPeran` memanggil
-`supabase.auth.getUser()`). Aturannya: istilah yang muncul di skema database
+`supabase.auth.getClaims()`). Aturannya: istilah yang muncul di skema database
 tidak diterjemahkan, sisanya Indonesia.
 
 ### B9. Tema
@@ -250,6 +250,48 @@ seperti sidebar.
 mendaftarkan token tersebut, tapi brief utamanya adalah keterbacaan; palet netral
 dengan satu aksen membuat status (`paid`, `approved`, `unpaid`, `returned`)
 terbaca tanpa bersaing dengan warna merek.
+
+### B10. Verifikasi sesi tanpa round-trip, dan `router.refresh()` setelah aksi
+
+**Keputusan.** Halaman memakai `getClaims()` (verifikasi JWT lokal), bukan
+`getUser()`. Setiap Server Action yang sukses diikuti `router.refresh()` di
+`FormAksi`.
+
+**Alasan.** Keduanya berasal dari pengukuran, bukan dugaan. Sebelum perbaikan,
+TTFB median halaman admin: `/admin` 1,476 s, `/admin/kelas` 0,985 s,
+`/admin/invoice` 0,709 s, `/admin/logbook` 0,852 s. Penyebabnya dua hal yang
+saling menumpuk:
+
+1. Setiap request memanggil Supabase Auth dua kali — sekali di middleware,
+   sekali di `ambilProfilSekarang()`. Server aplikasi berada di jaringan yang
+   jauh dari project Supabase (ap-southeast-2), jadi satu round-trip saja
+   terukur 250-700 ms.
+2. Query di halaman ditulis berurutan. Tiga query berarti tiga round-trip
+   dijumlah, padahal ketiganya tidak saling bergantung.
+
+Setelah `getClaims()`, `Promise.all`, dan `router.refresh()`: `/admin` 0,263 s,
+`/admin/kelas` 0,240 s, `/admin/invoice` 0,213 s, `/admin/logbook` 0,215 s.
+Navigasi antar halaman 291 ms dan stabil.
+
+**Kenapa `router.refresh()` bukan `revalidatePath` saja.** `revalidatePath`
+hanya menandai cache basi. Ketika Server Action dipanggil sebagai fungsi biasa
+(pola `FormAksi`), Next.js tidak mengirim ulang hasil render halaman. Itu akar
+keluhan "tombol harus diklik dua kali": pesan sukses muncul, badge belum
+berubah. Terbukti setelah diperbaiki: submit logbook dan approve selesai dalam
+satu klik, badge langsung berubah.
+
+**Alternatif yang ditolak.** Memindahkan identitas lewat header (`x-user-id`)
+dari middleware ke Server Component: lebih hemat satu query, tapi header request
+bisa hilang saat Supabase menulis cookie di respons, dan itu membuat kegagalannya
+sulit dilacak. `getClaims()` memberi hasil yang sama tanpa jalur rapuh itu.
+
+**Konsekuensi.** Keuntungan latensi ini bergantung pada signing key asimetris.
+Kalau project pindah ke HS256, `getClaims()` kembali jadi panggilan jaringan dan
+angka di atas tidak berlaku lagi. `getUser()` di middleware tetap ada dan tetap
+satu round-trip per request; itu memang harga untuk refresh token. `loading.tsx`
+per peran juga ditambahkan supaya transisi tidak terasa diam, dan kerangkanya
+memakai menu asli — bukan kotak abu-abu — agar navigasi tidak hilang saat
+menunggu.
 
 ---
 
@@ -285,19 +327,24 @@ angka margin yang benar dan teruji di database. Lihat ARCHITECTURE.md bagian 7.
 
 Ditulis supaya jelas mana yang keputusan dan mana yang utang.
 
-1. **`db/04_seed.sql` menulis jam les 7 jam lebih malam.** Nilai
-   `date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days
-   16 hours'` bertipe `timestamp` tanpa zona, lalu masuk ke kolom `timestamptz`
-   dan dianggap UTC. Hasilnya les tampil pukul **23.00 WIB**, bukan 16.00 seperti
-   yang dimaksud. Perbaikannya satu tambahan cast:
-   `... at time zone 'Asia/Jakarta'`. Data tetap valid (durasi, kuota, dan
-   earnings tidak terpengaruh), jadi ini murni soal jam yang terlihat.
-2. **`npm run db:setup` menunjuk ke file yang tidak ada.** Script-nya
+0. **Sudah diperbaiki pada commit ini.** Sempat masuk daftar utang, sekarang
+   beres dan dicatat di sini sebagai jejak:
+
+   - **Jam seed 7 jam lebih malam.** `db/04_seed.sql` menulis
+     `date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days
+     16 hours'`, bertipe `timestamp` tanpa zona, lalu masuk ke kolom
+     `timestamptz` dan ditafsirkan UTC. Les tampil 23.00 WIB, bukan 16.00. Kini
+     ditutup dengan `at time zone 'Asia/Jakarta'` di akhir ekspresi. Terbukti di
+     DB: `starts_at` tersimpan `09:00+00`, tampil `16:00` WIB.
+   - **Tombol harus diklik dua kali.** Akar dan perbaikannya ada di B10.
+   - **Navigasi dan CRUD terasa lambat.** Angka sebelum/sesudah ada di B10.
+
+1. **`npm run db:setup` menunjuk ke file yang tidak ada.** Script-nya
    `bash db/deploy_supabase.sh`, padahal file itu tidak pernah dibuat; urutan
    migrasi masih dijalankan manual seperti di README bagian 1.3. Selama belum
    ada script-nya, entri `db:setup` di `package.json` sebaiknya dihapus supaya
    tidak menyesatkan.
-3. **Top-up paket** belum punya alur yang benar. Karena
+2. **Top-up paket** belum punya alur yang benar. Karena
    `enrollments_one_active_per_student` hanya mengizinkan satu enrollment aktif
    per siswa per kelas, paket kedua ditolak selama yang pertama masih aktif
    (sudah diuji: `duplicate key value violates unique constraint`). Alur yang
@@ -306,10 +353,29 @@ Ditulis supaya jelas mana yang keputusan dan mana yang utang.
    benar: izinkan beberapa enrollment aktif, lalu kelompokkan
    `v_enrollment_balance` per `(class_id, student_id)` dan jumlahkan sisa
    jamnya.
-4. **Tidak ada audit log** untuk perubahan rate dan status invoice. `paid_at` /
+3. **Tidak ada audit log** untuk perubahan rate dan status invoice. `paid_at` /
    `paid_by` cukup untuk satu admin, tidak cukup kalau ada beberapa.
-5. **Test UI belum ada.** Pengujian berhenti di batas database + REST. Untuk
+4. **Test UI belum ada.** Pengujian berhenti di batas database + REST. Untuk
    aplikasi ini itu lapisan yang paling mahal kalau salah, tapi bukan berarti
    lapisan lain aman.
+5. **Les susulan di bulan yang logbook-nya sudah `approved` jadi buntu.** Logbook
+   unik per `(class_id, period_year, period_month)`, jadi tidak ada logbook kedua
+   untuk bulan yang sama. Kalau tutor menandai selesai sebuah les di bulan itu
+   setelah logbooknya di-approve, entrinya tidak punya tempat. Diuji langsung dan
+   gagal seperti ini:
+   `ERROR: Logbook is approved and no longer accepts entries`
+   (`fn_logbook_entries_guard`, db/02_triggers.sql). Klik "Tandai selesai" tetap
+   berhasil, jadi tutor baru sadar saat mengisi entri, dan pendapatan les itu
+   tidak pernah tercatat. Ini bukan bug sepele: approve di awal bulan lalu ada
+   les susulan adalah hal yang wajar. Perbaikannya perlu keputusan produk, bukan
+   tambal trigger — misalnya logbook koreksi terpisah, atau izinkan `returned`
+   atas permintaan tutor dengan catatan. Karena itu sengaja tidak saya ubah
+   sendiri.
+6. **UI menuntut semua les terisi, database tidak.** Teks di halaman tutor
+   berbunyi "Isi semua les di atas, lalu kirim ke admin", tapi
+   `fn_logbooks_guard_transition` hanya mewajibkan **minimal satu** entri. Tutor
+   bisa submit dengan sebagian les kosong dan tetap lolos. Kalau yang diinginkan
+   adalah semua les wajib terisi, itu butuh trigger tambahan yang menghitung
+   `lessons completed` di periode itu dan membandingkannya dengan jumlah entri.
 
 

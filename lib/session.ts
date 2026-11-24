@@ -11,12 +11,17 @@ import type { Profil, Peran } from './types';
 export async function ambilProfilSekarang(): Promise<Profil | null> {
   const supabase = await buatClientServer();
 
-  // getUser() memvalidasi token ke server Supabase, bukan sekadar membaca cookie.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() memverifikasi tanda tangan JWT. Project ini memakai signing key
+  // asimetris (ES256), jadi verifikasinya lokal memakai WebCrypto dan kunci
+  // publiknya di-cache. Hasilnya: tidak ada round-trip ke Supabase Auth di
+  // setiap request. getUser() tetap 1 round-trip (~200-500 ms) per request,
+  // dan middleware sudah memanggilnya untuk refresh token.
+  //
+  // Kalau project ini suatu saat pindah ke signing key simetris (HS256),
+  // getClaims() otomatis kembali jadi network call, jadi tidak ada yang rusak.
+  const { data: klaim, error: errorKlaim } = await supabase.auth.getClaims();
 
-  if (!user) {
+  if (errorKlaim || !klaim?.claims?.sub) {
     return null;
   }
 
@@ -25,7 +30,7 @@ export async function ambilProfilSekarang(): Promise<Profil | null> {
   const { data: profil } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', klaim.claims.sub)
     .single();
 
   return profil as Profil | null;

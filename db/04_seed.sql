@@ -99,20 +99,27 @@ begin
 
     -- ---------------------------------------------------------------------
     -- Two past lessons in the current month, both completed.
+    --
+    -- Kenapa ada `at time zone 'Asia/Jakarta'` dua kali?
+    -- `date_trunc(... at time zone 'Asia/Jakarta')` menghasilkan `timestamp`
+    -- TANPA zona (jam dinding Jakarta). Menambah interval tetap tanpa zona.
+    -- Kalau nilai itu langsung masuk kolom `timestamptz`, Postgres
+    -- menafsirkannya sebagai UTC — dan les tampil 23.00 WIB, bukan 16.00.
+    -- Cast kedua di akhir mengubahnya kembali jadi `timestamptz` dengan benar.
     -- ---------------------------------------------------------------------
     insert into lessons (class_id, tutor_id, starts_at, ends_at, status)
     values (
         v_class, v_tutor1,
-        date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days 16 hours',
-        date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days 17 hours 30 minutes',
+        (date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days 16 hours') at time zone 'Asia/Jakarta',
+        (date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '7 days 17 hours 30 minutes') at time zone 'Asia/Jakarta',
         'completed'
     ) returning id into v_lesson1;
 
     insert into lessons (class_id, tutor_id, starts_at, ends_at, status)
     values (
         v_class, v_tutor1,
-        date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '14 days 16 hours',
-        date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '14 days 17 hours 30 minutes',
+        (date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '14 days 16 hours') at time zone 'Asia/Jakarta',
+        (date_trunc('month', now() at time zone 'Asia/Jakarta') + interval '14 days 17 hours 30 minutes') at time zone 'Asia/Jakarta',
         'completed'
     ) returning id into v_lesson2;
 

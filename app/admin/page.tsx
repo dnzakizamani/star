@@ -27,27 +27,37 @@ export default async function BerandaAdmin() {
   const profil = await wajibPeran('admin');
   const supabase = await buatClientServer();
 
-  // Ambil kelas beserta tutor dan jumlah siswanya dalam satu query.
-  // Supabase menerjemahkan bentuk ini menjadi join.
-  const { data: kelas } = await supabase
-    .from('v_classes_safe')
-    .select('*, tutor:profiles!classes_tutor_id_fkey(full_name), pendaftaran:enrollments(id, status)')
-    .order('created_at', { ascending: false });
+  // Ketiga query ini tidak saling bergantung, jadi dijalankan bersamaan.
+  // Kalau ditulis berurutan seperti sebelumnya, total waktunya jadi jumlah
+  // ketiganya (~1,2 s). Dengan Promise.all, totalnya jadi yang paling lambat
+  // saja (~0,5 s).
+  const [
+    { data: kelas },
+    { count: jumlahBelumBayar },
+    { count: jumlahPerluReview },
+  ] = await Promise.all([
+    // Ambil kelas beserta tutor dan jumlah siswanya dalam satu query.
+    // Supabase menerjemahkan bentuk ini menjadi join.
+    supabase
+      .from('v_classes_safe')
+      .select('*, tutor:profiles!classes_tutor_id_fkey(full_name), pendaftaran:enrollments(id, status)')
+      .order('created_at', { ascending: false }),
+
+    // Invoice yang belum dibayar, untuk pengingat di beranda.
+    supabase
+      .from('invoices')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'unpaid'),
+
+    // Logbook yang menunggu review.
+    supabase
+      .from('logbooks')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'submitted'),
+  ]);
 
   const daftarKelas = (kelas ?? []) as unknown as BarisKelas[];
   const kelasAktif = daftarKelas.filter((k) => k.status === 'active');
-
-  // Invoice yang belum dibayar, untuk pengingat di beranda.
-  const { count: jumlahBelumBayar } = await supabase
-    .from('invoices')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'unpaid');
-
-  // Logbook yang menunggu review.
-  const { count: jumlahPerluReview } = await supabase
-    .from('logbooks')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'submitted');
 
   return (
     <KerangkaHalaman profil={profil}>
